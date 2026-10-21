@@ -1,0 +1,96 @@
+{
+  "name": "mikallbook",
+  "version": "2026.1.0",
+  "description": "MiKallbook — Stage Manager's Prompt Book",
+  "main": "main.js",
+  "author": "Michael A. Pierson",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start":     "electron .",
+    "build:win": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win",
+    "build:mac": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac",
+    "build:all": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --mac"
+  },
+  "devDependencies": {
+    "electron":         "44.7.0",
+    "electron-builder": "^26.15.3",
+    "cross-env":        "^7.0.3"
+  },
+  "build": {
+    "appId":       "com.michaelpierson.mikallbook",
+    "productName": "MiKallbook",
+    "copyright":   "Copyright © 2026 Michael A. Pierson",
+
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "app.js",
+      "script-view.js",
+      "text-doc.js",
+      "marks.js",
+      "panels.js",
+      "calling.js",
+      "operator.js",
+      "link.js",
+      "cuelists.js",
+      "drive.js",
+      "timing.js",
+      "reports.js",
+      "notes.js",
+      "notes-page.html",
+      "cuesheets.js",
+      "runorder.js",
+      "mikast-link.js",
+      "mikast-link-main.js",
+      "link-main.js",
+      "popout.html",
+      "popout.js",
+      "popout-preload.js",
+      "vendor/**/*",
+      "icon.png",
+      "MiKallbook_Manual_v2.html",
+      "mi-fonts.css",
+      "mi-theme.css",
+      "mikallbook.css"
+    ],
+
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico"
+    },
+
+    "nsis": {
+      "oneClick":                           false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut":              true,
+      "createStartMenuShortcut":            true,
+      "shortcutName":                       "MiKallbook"
+    },
+
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["universal"] }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.productivity",
+      "identity": "-"
+    },
+
+    "dmg": {
+      "title":  "MiKallbook ${version}",
+      "window": { "width": 540, "height": 380 },
+      "contents": [
+        { "x": 130, "y": 220, "type": "file" },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    },
+
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

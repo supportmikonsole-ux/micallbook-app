@@ -1,0 +1,267 @@
+/* ════════════════════════════════════════════════════════════════════
+   Mi suite theme: shared look for MiKue and later Mi apps.
+   Values are taken from MiKonsole_v2026Z.html so the apps match.
+   Master copy lives in the MiKue repo. MiKonsole keeps its own inline
+   styles for now; change both by hand until MiKonsole loads this file.
+   Requires mi-fonts.css (Barlow Condensed, Bebas Neue, Share Tech Mono).
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Surfaces */
+  --mi-bg:            #111111;   /* window background                 */
+  --mi-surface:       #2c2c2c;   /* brushed-aluminum base             */
+  --mi-panel:         #3b3a3a;   /* side panels, modals               */
+  --mi-input-bg:      #1e1e1e;
+  --mi-well:          #1a1a1a;   /* recessed areas                    */
+
+  /* Text */
+  --mi-text:          #f0e8d0;   /* cream: titles and primary text    */
+  --mi-text-dim:      #c0b090;   /* column headers                    */
+  --mi-text-muted:    #8a8070;
+
+  /* Lines */
+  --mi-rule:          #606060;   /* header bottom rule                */
+  --mi-border:        #686868;
+  --mi-border-hover:  #909090;
+  --mi-row-line:      #2a2010;
+
+  /* Brand gold */
+  --mi-gold:          #c09030;
+  --mi-gold-bright:   #d4a84b;
+  --mi-gold-line:     #c0a050;
+
+  /* Cue list states (same as MiKonsole's cue list) */
+  --mi-row-active:    #57471e;
+  --mi-row-next:      #2a1e08;
+  --mi-row-running:   #3a2e0e;
+
+  /* GO (green) */
+  --mi-go-bg:         #1e4838;
+  --mi-go-border:     #40a878;
+  --mi-go-hover-bg:   #2a6050;
+  --mi-go-hover-fg:   #a0f0d0;
+  --mi-go-hover-bd:   #60c8a0;
+
+  /* Stop / danger (red) */
+  --mi-stop-border:   #5a3030;
+  --mi-stop-fg:       #c07070;
+  --mi-stop-hover-bg: #2a1818;
+  --mi-stop-hover-fg: #e09090;
+  --mi-red:           #c84040;
+  --mi-red-bright:    #e05050;
+
+  /* Status */
+  --mi-ok:            #90d090;
+  --mi-warn:          #c09030;
+  --mi-err:           #d08080;
+
+  /* Type */
+  --mi-font-ui:       'Barlow Condensed', sans-serif;
+  --mi-font-brand:    'Bebas Neue', sans-serif;
+  --mi-font-mono:     'Share Tech Mono', monospace;
+
+  --mi-radius:        16px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--mi-bg); color: var(--mi-text);
+  font-family: var(--mi-font-ui);
+  user-select: none; overflow: hidden;
+}
+input, textarea, select, [contenteditable] { user-select: text; }
+
+/* ── Console panel: brushed aluminum + breathing glass ring ─────────── */
+@keyframes miGlassBreathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.80; } }
+
+.mi-console {
+  position: relative;
+  border-radius: var(--mi-radius);
+  border: 1px solid rgba(255,255,255,0.11);
+  padding: 16px;
+  isolation: isolate;
+}
+.mi-console-texture {
+  position: absolute; inset: 0; border-radius: var(--mi-radius);
+  overflow: hidden; pointer-events: none; z-index: -1;
+}
+.mi-console-texture svg { width: 100%; height: 100%; display: block; }
+.mi-console::before {
+  content: '';
+  position: absolute; inset: -9px; border-radius: 25px;
+  background: conic-gradient(from 315deg,
+    rgba(255,255,255,0.13) 0deg,   rgba(255,255,255,0.32) 8deg,
+    rgba(255,255,255,0.58) 16deg,  rgba(255,255,255,0.32) 24deg,
+    rgba(255,255,255,0.13) 32deg,  rgba(255,255,255,0.13) 65deg,
+    rgba(255,255,255,0.13) 78deg,  rgba(255,255,255,0.26) 86deg,
+    rgba(255,255,255,0.40) 94deg,  rgba(255,255,255,0.26) 102deg,
+    rgba(255,255,255,0.13) 110deg, rgba(255,255,255,0.13) 148deg,
+    rgba(255,255,255,0.13) 158deg, rgba(255,255,255,0.26) 166deg,
+    rgba(255,255,255,0.42) 174deg, rgba(255,255,255,0.26) 182deg,
+    rgba(255,255,255,0.13) 190deg, rgba(255,255,255,0.13) 228deg,
+    rgba(255,255,255,0.13) 238deg, rgba(255,255,255,0.24) 246deg,
+    rgba(255,255,255,0.38) 254deg, rgba(255,255,255,0.24) 262deg,
+    rgba(255,255,255,0.13) 270deg, rgba(255,255,255,0.13) 360deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  padding: 9px;
+  animation: miGlassBreathe 6s ease-in-out infinite;
+  pointer-events: none; z-index: 10;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+.mi-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--mi-rule);
+}
+.mi-brand { display: flex; align-items: center; gap: 10px; }
+.mi-brand-name {
+  font-family: var(--mi-font-brand); font-size: 32px; color: var(--mi-text);
+  letter-spacing: 4px; text-transform: uppercase; line-height: 1;
+}
+.mi-brand-name .mi-brand-i {
+  font-family: var(--mi-font-ui); font-weight: 700; text-transform: lowercase;
+  font-size: 28px; vertical-align: baseline; letter-spacing: 4px; color: var(--mi-gold);
+}
+.mi-brand-sub { font-family: var(--mi-font-mono); font-size: 9px; color: var(--mi-text); letter-spacing: 1px; }
+.mi-status-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.mi-status {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--mi-font-mono); font-size: 13px; color: #777;
+}
+.mi-status .mi-dot { width: 5px; height: 5px; border-radius: 50%; background: #666; flex-shrink: 0; transition: background 0.3s; }
+.mi-status.ok   { color: var(--mi-ok); }
+.mi-status.ok .mi-dot { background: var(--mi-ok); box-shadow: 0 0 5px var(--mi-ok); }
+.mi-status.warn { color: var(--mi-warn); }
+.mi-status.warn .mi-dot { background: var(--mi-warn); }
+.mi-status.err  { color: var(--mi-err); }
+.mi-status.err .mi-dot { background: var(--mi-err); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.mi-btn {
+  font-family: var(--mi-font-ui); font-size: 14px; font-weight: 700; letter-spacing: 2px;
+  padding: 9px 14px; background: transparent; border: 1px solid var(--mi-border);
+  color: var(--mi-text); border-radius: 5px; cursor: pointer; text-transform: uppercase;
+  transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.mi-btn:hover { background: var(--mi-row-active); border-color: var(--mi-gold-line); }
+.mi-btn:active { transform: scale(0.97); }
+.mi-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+.mi-btn.on { background: var(--mi-row-active); border-color: var(--mi-text); }
+
+.mi-btn-go {
+  font-family: var(--mi-font-ui); font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  background: var(--mi-go-bg); border: 2px solid var(--mi-go-border); color: var(--mi-text);
+  border-radius: 6px; cursor: pointer; transition: all 0.15s;
+}
+.mi-btn-go:hover  { background: var(--mi-go-hover-bg); color: var(--mi-go-hover-fg); border-color: var(--mi-go-hover-bd); }
+.mi-btn-go:active { transform: scale(0.98); }
+.mi-btn-go.flash  { background: #30604a; border-color: #80e0b8; box-shadow: 0 0 12px rgba(80,200,150,0.3); }
+
+.mi-btn-stop { border: 1px solid var(--mi-stop-border); color: var(--mi-stop-fg); }
+.mi-btn-stop:hover { background: var(--mi-stop-hover-bg); color: var(--mi-stop-hover-fg); border-color: #8a4848; }
+
+.mi-btn-red { background: var(--mi-red); border: 1px solid var(--mi-red-bright); color: #fff; }
+.mi-btn-red:hover { background: var(--mi-red-bright); border-color: #ff6060; }
+
+.mi-btn-exit { border: 1px solid #704040; color: #c07070; position: relative; }
+.mi-btn-exit:hover { background: #940606; border-color: #940606; color: var(--mi-text); }
+.mi-btn-exit.dirty::after {
+  content: ''; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px;
+  border-radius: 50%; background: #e8c050; box-shadow: 0 0 4px #e8c050;
+}
+
+.mi-btn-close {
+  font-family: var(--mi-font-ui); font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  padding: 6px 14px; background: transparent; border: 1px solid #4a3030; color: #b07070;
+  cursor: pointer; border-radius: 4px; text-transform: uppercase; transition: all 0.15s;
+}
+.mi-btn-close:hover { background: #2a1818; color: #e09090; border-color: #7a4040; }
+
+/* ── Inputs ──────────────────────────────────────────────────────────── */
+.mi-input, .mi-select {
+  font-family: var(--mi-font-mono); font-size: 12px; color: var(--mi-text);
+  background: var(--mi-input-bg); border: 1px solid var(--mi-border); border-radius: 3px;
+  padding: 4px 6px; outline: none; transition: border-color 0.12s;
+}
+.mi-input:hover, .mi-select:hover { border-color: var(--mi-border-hover); }
+.mi-input:focus, .mi-select:focus { border-color: #9a6818; background: #1a1400; }
+.mi-input[type=number]::-webkit-inner-spin-button,
+.mi-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.mi-select option { background: var(--mi-input-bg); color: var(--mi-text); }
+.mi-label {
+  font-family: var(--mi-font-mono); font-size: 10px; color: var(--mi-text-dim);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* ── Side panel overlay (slides in from the right, own close button) ─── */
+.mi-side-panel {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 420px;
+  background: var(--mi-panel); border: 1px solid rgba(255,255,255,0.11); border-radius: var(--mi-radius);
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: -12px 0 40px rgba(0,0,0,0.55);
+  transform: translateX(calc(100% + 24px)); visibility: hidden;
+  transition: transform 0.22s ease-out, visibility 0s linear 0.22s;
+  z-index: 50;
+}
+.mi-side-panel.open { transform: translateX(0); visibility: visible; transition: transform 0.22s ease-out, visibility 0s; }
+.mi-sp-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-bottom: 1px solid #383020; flex-shrink: 0;
+}
+.mi-sp-title {
+  font-family: var(--mi-font-ui); font-size: 18px; font-weight: 700;
+  color: var(--mi-text); letter-spacing: 3px; text-transform: uppercase; flex: 1;
+}
+
+/* ── Scrollbars (brighter than MiKonsole's, per the FC panel feedback) ─ */
+.mi-scroll { overflow-y: auto; }
+.mi-scroll::-webkit-scrollbar { width: 10px; }
+.mi-scroll::-webkit-scrollbar-track { background: #1c1a16; }
+.mi-scroll::-webkit-scrollbar-thumb { background: #7a6838; border-radius: 5px; border: 2px solid #1c1a16; }
+.mi-scroll::-webkit-scrollbar-thumb:hover { background: #a08848; }
+
+/* ── File area in the header (MiKallbook, MiKue) ─────────────────────────
+   Same look as MiKonsole's file bar (SHOW · name · buttons · status), but
+   sitting in the header next to the brand instead of in a strip below it. */
+.mi-header-left { display: flex; align-items: center; min-width: 0; flex: 1 1 auto; }
+.mi-file {
+  display: flex; align-items: center; gap: 6px; min-width: 0; flex: 0 1 auto; margin-left: 22px;
+  padding: 7px 10px; background: #1e1e1e; border: 2px solid #686868; border-radius: 6px;
+}
+.mi-file-label {
+  font-family: var(--mi-font-ui); font-size: 20px; font-weight: 700; color: #f0e8d0;
+  letter-spacing: 2px; text-transform: uppercase; flex-shrink: 0; margin-right: 10px;
+}
+.mi-file-name {
+  font-family: var(--mi-font-mono); font-size: 13px; color: #f0e8d0; background: #2a2a2a;
+  border: 1px solid #686868; border-radius: 3px; padding: 7px 8px; width: 240px; min-width: 70px; flex: 0 1 auto;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default;
+}
+.mi-file-btn {
+  font-family: var(--mi-font-mono); font-size: 13px; letter-spacing: 1px; padding: 7px 12px;
+  background: transparent; border: 1px solid #686868; color: #f0e8d0; cursor: pointer; border-radius: 4px;
+  text-transform: uppercase; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+}
+.mi-file-btn:hover { background: #57471e; color: #f0e8d0; border-color: #c0a050; }
+.mi-file-btn.flash { background: #608050; color: #f0e8d0; }
+.mi-file-status {
+  font-family: var(--mi-font-mono); font-size: 13px; color: #f0e8d0; margin-left: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto;
+}
+.mi-file-status.ok   { color: #80b060; }
+.mi-file-status.warn { color: #c09050; }
+.mi-header .mi-status-bar { flex-shrink: 0; margin-left: 12px; }
+@media (max-width: 1560px) {
+  .mi-file { margin-left: 12px; padding: 6px 8px; gap: 5px; }
+  .mi-file-label { font-size: 18px; margin-right: 6px; }
+  .mi-file-name { width: 170px; }
+  .mi-file-btn { padding: 6px 8px; font-size: 12px; letter-spacing: 0.5px; }
+}
+@media (max-width: 1300px) {
+  .mi-file-label { display: none; }
+  .mi-file-name { width: 120px; }
+  .mi-file-btn { padding: 6px 6px; }
+}

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; font-src 'self' file: data:; img-src 'self' file: data: blob:; worker-src 'self' file: blob:; connect-src 'self' http://localhost:* http://127.0.0.1:*">
+<title>MiKallbook</title>
+<link rel="stylesheet" href="mi-fonts.css">
+<link rel="stylesheet" href="mi-theme.css">
+<link rel="stylesheet" href="mikallbook.css">
+</head>
+<body>
+
+<div id="frame">
+<div class="mi-console" id="console">
+  <!-- Brushed aluminum texture (same filter as MiKonsole and MiKue) -->
+  <div class="mi-console-texture">
+    <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <filter id="hbrush" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB" primitiveUnits="userSpaceOnUse">
+          <feTurbulence type="turbulence" baseFrequency="0.003 0.33" numOctaves="3" seed="29" result="scratches"/>
+          <feColorMatrix type="saturate" values="0" in="scratches" result="gs"/>
+          <feComponentTransfer in="gs" result="cs">
+            <feFuncR type="linear" slope="2.6" intercept="-0.75"/>
+            <feFuncG type="linear" slope="2.6" intercept="-0.75"/>
+            <feFuncB type="linear" slope="2.6" intercept="-0.75"/>
+          </feComponentTransfer>
+          <feTurbulence type="turbulence" baseFrequency="0.001 0.25" numOctaves="1" seed="7" result="bands"/>
+          <feColorMatrix type="saturate" values="0" in="bands" result="gb"/>
+          <feComponentTransfer in="gb" result="cb">
+            <feFuncR type="linear" slope="0.5" intercept="-0.08"/>
+            <feFuncG type="linear" slope="0.5" intercept="-0.08"/>
+            <feFuncB type="linear" slope="0.5" intercept="-0.08"/>
+          </feComponentTransfer>
+          <feBlend in="cs" in2="cb" mode="screen" result="combined"/>
+          <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="4" seed="17" result="grain"/>
+          <feColorMatrix type="saturate" values="0" in="grain" result="gg"/>
+          <feBlend in="combined" in2="gg" mode="screen" result="full"/>
+          <feBlend in="SourceGraphic" in2="full" mode="soft-light" result="out"/>
+          <feComposite in="out" in2="SourceGraphic" operator="in"/>
+        </filter>
+      </defs>
+      <rect width="100%" height="100%" fill="#2c2c2c"/>
+      <rect width="100%" height="100%" filter="url(#hbrush)" opacity="0.11" fill="#949292"/>
+    </svg>
+  </div>
+
+  <div id="consoleInner">
+    <!-- ── Header ─────────────────────────────────────────────────── -->
+    <div class="mi-header">
+      <div class="mi-header-left">
+      <div class="mi-brand">
+        <!-- Open prompt book with a cue tab and a leader line to the text -->
+        <svg width="40" height="50" viewBox="0 0 32 40" fill="none" style="display:block;flex-shrink:0">
+          <path d="M4 11 Q10 9 16 12 V31 Q10 28 4 30 Z" stroke="#d4a84b" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M16 12 Q22 9 28 11 V30 Q22 28 16 31" stroke="#d4a84b" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M7 16 H13 M7 19.5 H12 M7 23 H13" stroke="#d4a84b" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
+          <path d="M19 19.5 H23" stroke="#d4a84b" stroke-width="1" stroke-linecap="round" stroke-dasharray="1.5 1.5"/>
+          <rect x="23" y="17" width="7" height="5" rx="1" fill="#d4a84b" opacity="0.85"/>
+        </svg>
+        <div>
+          <div class="mi-brand-name">M<span class="mi-brand-i">i</span>KALLBOOK</div>
+          <div class="mi-brand-sub">Stage Manager's Prompt Book</div>
+        </div>
+      </div>
+
+      <!-- File area: same look as MiKonsole's file bar, in the header -->
+      <div class="mi-file">
+        <div class="mi-file-label">Show</div>
+        <div class="mi-file-name" id="showName" title="Not saved yet">Untitled Show</div>
+        <button class="mi-file-btn" id="btnNew" title="New show (Ctrl+N)">New</button>
+        <button class="mi-file-btn" id="btnOpen" title="Open a show (Ctrl+O)">Open</button>
+        <button class="mi-file-btn" id="btnSave" title="Save (Ctrl+S)">Save</button>
+        <button class="mi-file-btn" id="btnSaveAs" title="Save under a new name (Ctrl+Shift+S)">Save As</button>
+        <div class="mi-file-status" id="fileStatus">unsaved</div>
+      </div>
+      </div>
+
+      <div class="mi-status-bar">
+        <div class="seg" role="group" aria-label="Mode">
+          <button class="mi-btn seg-btn" id="btnEditMode">Edit</button>
+          <button class="mi-btn seg-btn" id="btnShowMode">Show</button>
+          <button class="mi-btn seg-btn" id="btnOpMode" title="Operator: one department's cues, with script excerpts">Operator</button>
+        </div>
+        <select class="mi-select op-only" id="opDeptSelect" title="The department this computer operates"></select>
+        <div class="hdr-sep"></div>
+        <!-- Link status: shown only while sharing or following (link.js) -->
+        <button class="mi-btn link-pill off" id="btnLink" title="Link computers">Link</button>
+        <!-- Utilities menu -->
+        <div class="mi-menu" id="utilWrap">
+          <button class="mi-btn" id="btnUtil" aria-haspopup="true" aria-expanded="false" title="Reports, cue sheets, departments, linking computers">Utilities <span class="menu-caret">▾</span></button>
+          <div class="menu-list" id="utilMenu" role="menu">
+            <button class="menu-item" role="menuitem" id="btnReports"><span>Reports</span><span class="menu-hint">rehearsal &amp; performance</span></button>
+            <button class="menu-item" role="menuitem" id="miNotes"><span>Notes from Phones</span><span class="menu-hint">QR code for the team</span></button>
+            <button class="menu-item edit-only" role="menuitem" id="btnCueSheets"><span>Cue Sheets</span><span class="menu-hint">print, PDF, CSV</span></button>
+            <button class="menu-item edit-only" role="menuitem" id="btnDepts"><span>Departments</span><span class="menu-hint">codes, colors, links</span></button>
+            <div class="menu-sep"></div>
+            <button class="menu-item" role="menuitem" id="miLink"><span>Link Computers</span><span class="menu-hint" id="miLinkHint">share or follow</span></button>
+            <button class="menu-item" role="menuitem" id="miBooth"><span>Booth View</span><span class="menu-hint" id="miBoothHint">second monitor</span></button>
+            <button class="menu-item" role="menuitem" id="miMikast"><span>MiKast Link</span><span class="menu-hint" id="miMikastHint">calls → sessions</span></button>
+            <div class="menu-sep"></div>
+            <button class="menu-item" role="menuitem" id="miManual"><span>User Manual</span><span class="menu-hint">F1</span></button>
+            <div class="menu-note edit-hide">Cue Sheets and Departments: in Edit mode</div>
+          </div>
+        </div>
+        <div class="hdr-sep"></div>
+        <button class="mi-btn mi-btn-exit" id="btnExit">Exit</button>
+      </div>
+    </div>
+
+    <!-- Live link: LINK LOST, or this copy differs from the SM's (link.js) -->
+    <div class="link-banner hidden" id="linkBanner" title="Open the Link window"></div>
+
+    <!-- ── Body ───────────────────────────────────────────────────── -->
+    <div id="body">
+      <!-- Script column -->
+      <div id="scriptWrap">
+        <div class="show-lock" id="showLock">SHOW MODE · editing locked</div>
+        <div class="script-bar">
+          <button class="mi-btn edit-only" id="btnImportPdf" title="Import the script as a PDF">Import PDF…</button>
+          <button class="mi-btn edit-only" id="btnPasteText" title="Paste or type the script as plain text">Paste Text…</button>
+          <div class="tb-sep edit-only doc-only"></div>
+          <button class="mi-btn sb-icon doc-only" id="btnPrevPage" title="Previous page (Page Up)">◀</button>
+          <input class="mi-input page-input doc-only" id="pageInput" title="Go to page" spellcheck="false">
+          <span class="mi-label doc-only" id="pageTotal">/ 0</span>
+          <button class="mi-btn sb-icon doc-only" id="btnNextPage" title="Next page (Page Down)">▶</button>
+          <div class="tb-sep doc-only"></div>
+          <button class="mi-btn sb-icon doc-only" id="btnZoomOut" title="Zoom out (Ctrl + wheel)">−</button>
+          <button class="mi-btn sb-icon doc-only" id="btnFitW" title="Fit the page width to the window" aria-label="Fit width"><svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 2v10M16.5 2v10M4.5 7h9M7 4.5 4.5 7 7 9.5M11 4.5 13.5 7 11 9.5"/></svg></button>
+          <button class="mi-btn sb-icon doc-only" id="btnFitP" title="Fit a whole page in the window" aria-label="Fit page"><svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 1.5h10M2 16.5h10M7 4.5v9M4.5 7 7 4.5 9.5 7M4.5 11 7 13.5 9.5 11"/></svg></button>
+          <span class="zoom-pct doc-only" id="zoomPct">100%</span>
+          <button class="mi-btn sb-icon doc-only" id="btnZoomIn" title="Zoom in (Ctrl + wheel)">+</button>
+          <div class="tb-sep doc-only"></div>
+          <div class="seg doc-only" role="group" aria-label="Pages side by side">
+            <button class="mi-btn seg-btn" id="btnOnePage" title="One page at a time">1 Page</button>
+            <button class="mi-btn seg-btn" id="btnTwoPage" title="Two pages side by side">2 Pages</button>
+          </div>
+          <div class="tb-fill"></div>
+          <label class="contrast-wrap" id="contrastWrap" title="Dark mode contrast (helps grey scanned pages)">
+            <span class="mi-label">Contrast</span>
+            <input type="range" id="contrastRange" min="1" max="1.8" step="0.05" value="1">
+          </label>
+          <div class="seg" role="group" aria-label="Page colors">
+            <button class="mi-btn seg-btn" id="btnPaper" title="Black text on white">Paper</button>
+            <button class="mi-btn seg-btn" id="btnDark" title="Light text on dark grey">Dark</button>
+          </div>
+          <!-- Show mode: the script scrolls to keep the next call in view (on by default; this computer) -->
+          <button class="mi-btn show-only" id="btnFollow" title="Follow: the script scrolls to keep the next call in view">Follow</button>
+        </div>
+        <div class="script-view" id="scriptView">
+          <div class="script-empty" id="scriptEmpty">
+            <div class="script-empty-title" id="emptyTitle">No script yet</div>
+            <div class="script-empty-sub" id="emptySub">Import the script as a PDF, paste it as plain text, or start a running order for a concert.</div>
+            <div class="script-empty-btns">
+              <button class="mi-btn edit-only" id="btnEmptyImport">Import PDF…</button>
+              <button class="mi-btn edit-only" id="btnEmptyPaste">Paste Text…</button>
+              <button class="mi-btn edit-only" id="btnEmptyRO" title="A concert or choir program: songs, speeches, transitions, riser moves">Running Order…</button>
+              <button class="mi-btn edit-only hidden" id="btnLocatePdf">Locate PDF…</button>
+            </div>
+          </div>
+          <div class="script-loading hidden" id="scriptLoading">Loading script…</div>
+        </div>
+        <!-- Concert running order: shown instead of the pages (runorder.js) -->
+        <div class="ro-view" id="roView"></div>
+
+        <!-- Inspector: the selected GO point (opens from the left) -->
+        <div class="mi-side-panel" id="inspector">
+          <div class="mi-sp-header">
+            <div class="mi-sp-title" id="inspTitle">GO</div>
+            <button class="mi-btn-close" id="btnInspClose">Close</button>
+          </div>
+          <div class="in-body mi-scroll" id="inspBody"></div>
+        </div>
+
+        <!-- Departments -->
+        <div class="mi-side-panel" id="deptPanel">
+          <div class="mi-sp-header">
+            <div class="mi-sp-title">Departments</div>
+            <button class="mi-btn-close" id="btnDeptClose">Close</button>
+          </div>
+          <div class="in-body mi-scroll">
+            <div class="dp-head"><span>Color</span><span>Code</span><span>Name</span><span>Link</span></div>
+            <div id="deptList"></div>
+            <button class="mi-btn in-add-cue" id="btnAddDept">+ Add department</button>
+            <div class="dp-defaults">
+              <div class="in-hint">These departments belong to this show. Save them as the default and every new show on this computer starts with them.</div>
+              <div class="in-btns">
+                <button class="mi-btn" id="btnSaveDepts">Save as default</button>
+                <button class="mi-btn" id="btnForgetDepts" title="New shows start with LX, SQ, MIC, FLY, SPOT, VIDEO, DECK">Use suggested set</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Calling column: right side, next to the margin tabs -->
+      <div id="calling">
+        <div class="standby">
+          <div class="standby-head"><span class="mi-label">Standby</span><span class="sb-clock" id="sbClock"></span></div>
+          <div class="standby-main">
+            <div class="standby-cues" id="standbyCues">-</div>
+          </div>
+          <div class="standby-meta" id="standbyMeta">No GO points yet</div>
+          <div class="standby-notes" id="standbyNotes"></div>
+        </div>
+
+        <button class="mi-btn-go go-big" id="btnGo" disabled>GO</button>
+
+        <div class="transport-row">
+          <button class="mi-btn" id="btnBack" disabled title="Step back to the previous GO point">Back</button>
+          <button class="mi-btn drive-btn" id="btnDrive">DRIVE OFF</button>
+        </div>
+        <div class="hint" id="callHint">SPACE&nbsp;=&nbsp;GO &nbsp;·&nbsp; BACKSPACE&nbsp;=&nbsp;BACK</div>
+
+        <!-- Show clock: session, milestones, holds (timing.js; Show mode, not when following the SM) -->
+        <div class="timing hidden" id="timing">
+          <div class="tm-head">
+            <span class="mi-label" id="tmSession">No session running</span>
+            <button class="tm-log hidden" id="btnTmLog">Session Log</button>
+          </div>
+          <div class="tm-now"><span class="tm-state" id="tmState"></span><span class="tm-elapsed" id="tmElapsed"></span></div>
+          <div class="tm-sum" id="tmSum"></div>
+          <div class="tm-btns">
+            <button class="mi-btn tm-next" id="btnTmNext">Start Session</button>
+            <button class="mi-btn tm-hold hidden" id="btnTmHold">Hold</button>
+          </div>
+          <select class="mi-select tm-reason hidden" id="tmReason" title="Why the show is held"></select>
+        </div>
+
+        <!-- MiKonsole / MiKue cue lists: running? cues not found? (cuelists.js) -->
+        <div class="live-status" id="liveStatus"></div>
+        <!-- MiKast link: the linked production (mikast-link.js) -->
+        <div class="live-status mk-status" id="mkStatus"></div>
+
+        <div class="upcoming">
+          <div class="section-head"><span class="mi-label" id="listLabel">GO points</span><span class="mi-label" id="goCount"></span></div>
+          <div class="upcoming-list mi-scroll" id="upcomingList"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Operator mode (docked) ─────────────────────────────────── -->
+    <div id="operator">
+      <div class="op-top">
+        <div class="op-dept" id="opDeptName"></div>
+        <div class="op-sm" id="opSm"></div>
+        <div class="op-link" id="opLink">Following this computer</div>
+        <div class="op-clock" id="opClock"></div>
+      </div>
+      <div class="op-main" id="opMain">
+        <div class="op-state" id="opState"></div>
+        <div class="op-cue" id="opCue"></div>
+        <div class="op-mics" id="opMics"></div>
+        <div class="op-meta" id="opMeta"></div>
+        <div class="op-note" id="opNote"></div>
+        <div class="op-excerpt mi-scroll" id="opExcerpt"></div>
+      </div>
+      <div class="op-side">
+        <div class="mi-label">Then</div>
+        <div class="op-next mi-scroll" id="opNext"></div>
+        <div class="hint" id="opHint">SPACE&nbsp;=&nbsp;GO &nbsp;·&nbsp; BACKSPACE&nbsp;=&nbsp;BACK</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Script text editor (pasted-text scripts) -->
+<div class="text-overlay" id="textOverlay">
+  <div class="text-dialog">
+    <div class="text-head">
+      <div class="text-title" id="textTitle">Paste Script Text</div>
+      <div class="text-hint">Tabs become 4 spaces. Lines wrap at 65 characters, 54 lines to a page. Marks stay with their words when you edit.</div>
+      <div class="text-notice hidden" id="textNotice">This looks like text copied from a PDF, with a line break at the end of every printed line. <b>Rejoin Lines</b> puts the paragraphs back together.</div>
+    </div>
+    <textarea class="text-input mi-scroll" id="textInput" spellcheck="false" placeholder="Paste the script here…"></textarea>
+    <div class="text-foot">
+      <span class="mi-label" id="textStats"></span>
+      <button class="mi-btn" id="btnRejoin" title="Join lines that were only broken by the printed page width, and drop page numbers. Ctrl+Z undoes it.">Rejoin Lines</button>
+      <label class="text-check" title="Center character names and indent ( stage directions ). Display only: the text itself is not changed.">
+        <input type="checkbox" id="chkScriptLayout" checked> Script layout
+      </label>
+      <div class="tb-fill"></div>
+      <span class="text-keys">Ctrl+Enter = Use Text · Esc = Cancel</span>
+      <button class="mi-btn" id="btnTextCancel">Cancel</button>
+      <button class="mi-btn mi-btn-go" id="btnTextUse" style="padding:9px 18px">Use Text</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cue sheets (cuesheets.js) -->
+<div class="modal-overlay" id="csOverlay">
+  <div class="rp-dialog" id="csBody"></div>
+</div>
+
+<!-- Reports (reports.js). Before the Session Log and the modal, so they sit on top -->
+<div class="modal-overlay" id="rpOverlay">
+  <div class="rp-dialog" id="rpBody"></div>
+</div>
+
+<!-- Session Log (timing.js). Before the modal, so its questions sit on top -->
+<div class="modal-overlay" id="tmOverlay">
+  <div class="modal tm-modal" id="tmBody"></div>
+</div>
+<datalist id="tmReasons"></datalist>
+
+<!-- Modal -->
+<!-- Notes from Phones: the QR code, large (notes.js). Before the modal, so its questions sit on top -->
+<div class="modal-overlay" id="ntOverlay">
+  <div class="modal nt-modal" id="ntBody"></div>
+</div>
+
+<!-- MiKast Link (mikast-link.js) -->
+<div class="modal-overlay" id="mkOverlay">
+  <div class="modal mk-modal" id="mkBody"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-msg" id="modalMsg"></div>
+    <div class="modal-detail" id="modalDetail"></div>
+    <div class="modal-extra hidden" id="modalExtra"></div>
+    <div class="modal-btns" id="modalBtns"></div>
+  </div>
+</div>
+
+<!-- Link computers (link.js fills it) -->
+<div class="modal-overlay" id="linkOverlay">
+  <div class="modal link-modal" id="linkBody"></div>
+</div>
+
+<!-- Cue number dropdowns in the inspector (cuelists.js fills them) -->
+<datalist id="dl-mikonsole"></datalist>
+<datalist id="dl-micue"></datalist>
+
+<div id="toasts"></div>
+
+<script src="text-doc.js"></script>
+<script src="script-view.js"></script>
+<script src="marks.js"></script>
+<script src="panels.js"></script>
+<script src="calling.js"></script>
+<script src="operator.js"></script>
+<script src="link.js"></script>
+<script src="cuelists.js"></script>
+<script src="drive.js"></script>
+<script src="timing.js"></script>
+<script src="reports.js"></script>
+<script src="vendor/qrcode/qrcode.js"></script>
+<script src="notes.js"></script>
+<script src="cuesheets.js"></script>
+<script src="runorder.js"></script>
+<script src="mikast-link.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

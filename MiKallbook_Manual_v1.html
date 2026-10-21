@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  MiKallbook — Stage Manager's Prompt Book
+  Copyright © 2026 Michael A. Pierson. All rights reserved.
+-->
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MiKallbook — User Manual v1</title>
+<link rel="stylesheet" href="mi-fonts.css"/>
+<style>
+:root {
+  --amber:#c09030; --gold:#907040; --brand:#f0e8d0; --light:#d0d0d0;
+  --mid:#888; --dim:#555; --purple:#a080d8; --teal:#5a9888;
+  --blue:#6090b8; --dark:#111110; --dark2:#1a1a14; --dark3:#1e1e1e;
+  --blind:#e8cc60; --adv:#5060a0; --green:#508060; --groups:#a0d8ff;
+  --fx:#c0a040; --cb:#6090b8; --ms-color:#a080d8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--dark);color:var(--light);font-family:'Barlow Condensed',sans-serif;font-size:16px;line-height:1.6;}
+
+.cover{width:100%;min-height:100vh;background:#0a0a08;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:60px;position:relative;overflow:hidden;}
+.cover-console{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.cover-console svg{width:min(70vw,620px);height:auto;opacity:.18;transform:translateY(-12%);}
+.cover-gradient{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 0%,rgba(10,10,8,.3) 50%,rgba(10,10,8,.92) 78%,#0a0a08 100%);}
+.cover-text{position:relative;z-index:2;text-align:center;}
+.cover-brand{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);color:var(--brand);letter-spacing:8px;line-height:1;}
+.cover-brand .bi{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88em;color:var(--amber);}
+.cover-sub{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,2vw,14px);color:var(--amber);letter-spacing:4px;text-transform:uppercase;margin-top:6px;}
+.cover-rule{width:120px;height:2px;background:var(--amber);margin:18px auto;opacity:.6;}
+.cover-scroll{margin-top:28px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+
+.layout{display:flex;max-width:1160px;margin:0 auto;padding:40px 20px;gap:32px;}
+.sidebar{width:210px;flex-shrink:0;position:sticky;top:24px;align-self:flex-start;max-height:calc(100vh - 48px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#2a2a1a;border-radius:2px;}
+.sidebar-title{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #2a2a1a;}
+.sidebar a{display:block;font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--dim);text-decoration:none;padding:4px 8px;border-radius:3px;transition:all .15s;letter-spacing:.5px;}
+.sidebar a:hover{color:var(--amber);background:#1a1a10;}
+.sidebar a.active{color:var(--amber);background:#201e10;}
+.sidebar a.sub{padding-left:18px;font-size:12px;}
+.content{flex:1;min-width:0;}
+section{margin-bottom:52px;scroll-margin-top:24px;}
+
+/* Section heading with icon */
+.section-h1{display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--amber);padding-bottom:8px;margin-bottom:18px;}
+.section-h1 h1{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--amber);letter-spacing:3px;line-height:1;border:none;padding:0;margin:0;}
+.section-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border:1.5px solid var(--amber);border-radius:6px;flex-shrink:0;opacity:.85;}
+
+h1{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--amber);letter-spacing:3px;border-bottom:2px solid var(--amber);padding-bottom:8px;margin-bottom:18px;line-height:1;}
+h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--brand);letter-spacing:1px;margin:26px 0 10px;}
+h3{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--blue);margin:18px 0 6px;}
+p{font-size:16px;color:var(--light);line-height:1.65;margin-bottom:10px;}
+ul{list-style:none;margin:8px 0 12px;padding:0;}
+ul li{font-size:15px;color:var(--light);padding:3px 0 3px 18px;position:relative;line-height:1.55;}
+ul li::before{content:'·';position:absolute;left:4px;color:var(--amber);font-weight:700;}
+
+.note{background:#0e1e1c;border-left:3px solid var(--teal);padding:10px 14px;border-radius:0 4px 4px 0;margin:12px 0;font-size:14px;color:var(--teal);font-style:italic;}
+.warn{background:#1e1a0c;border-left:3px solid var(--amber);padding:10px 14px;border-radius:0 4px 4px 0;margin:12px 0;font-size:14px;color:var(--amber);font-style:italic;}
+.blind-note{background:#1a1600;border-left:3px solid var(--blind);padding:10px 14px;border-radius:0 4px 4px 0;margin:12px 0;font-size:14px;color:var(--blind);font-style:italic;}
+.cp-note{background:#0c1a2a;border-left:3px solid #4080c0;padding:10px 14px;border-radius:0 4px 4px 0;margin:12px 0;font-size:14px;color:#70b0e0;font-style:italic;}
+.adv-note{background:#0c0e1e;border-left:3px solid #6070c0;padding:10px 14px;border-radius:0 4px 4px 0;margin:12px 0;font-size:14px;color:#8090d0;font-style:italic;}
+
+.kbd-seq{display:flex;flex-wrap:wrap;align-items:center;gap:4px;background:#141410;border:1px solid #2a2a1a;border-radius:5px;padding:8px 14px;margin:8px 0;}
+.kbd{font-family:'Share Tech Mono',monospace;font-size:11px;background:var(--amber);color:#0a0a08;padding:2px 8px;border-radius:3px;font-weight:700;letter-spacing:.5px;}
+.ka{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);}
+
+.ref-table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-family:'Barlow Condensed',sans-serif;}
+.ref-table th{font-size:12px;font-weight:700;color:var(--amber);text-align:left;padding:8px 12px;background:#2a2a14;border-bottom:1.5px solid var(--amber);letter-spacing:1px;text-transform:uppercase;}
+.ref-table td{font-size:14px;color:var(--light);padding:7px 12px;border-bottom:1px solid #1e1e14;vertical-align:top;line-height:1.5;}
+.ref-table td:first-child{color:var(--brand);font-weight:500;white-space:nowrap;font-family:'Share Tech Mono',monospace;font-size:12px;}
+.ref-table tr:nth-child(odd) td{background:#1a1a0e;}
+.ref-table tr:nth-child(even) td{background:#141410;}
+.ref-table tr:hover td{background:#201e10;}
+
+/* Section colors matched to console header button accent colors */
+section.scenes h1,.section-h1.scenes h1{color:#c0a050;}.section-h1.scenes{border-color:#c0a050;}    /* Submasters: gold amber — matches SM panel */
+section.groups h1,.section-h1.groups h1{color:#a0d8ff;}.section-h1.groups{border-color:#a0d8ff;}    /* Groups: light blue — matches Groups btn hover */
+section.effects h1,.section-h1.effects h1{color:#c0a040;}.section-h1.effects{border-color:#7a6020;} /* Effects/FX: gold amber — matches FX button color */
+section.cues h1,.section-h1.cues h1{color:#5a9888;}.section-h1.cues{border-color:#4a8878;}          /* Cue List: teal — matches Cue List btn */
+section.fc h1,.section-h1.fc h1{color:#c0a050;}.section-h1.fc{border-color:#706840;}               /* Fixture Controls: gold — matches FC btn */
+section.ms h1,.section-h1.ms h1{color:#a080d8;}.section-h1.ms{border-color:#4a3878;}               /* Magic Sheet: purple — matches MS btn */
+section.blind h1,.section-h1.blind h1{color:#e8cc60;}.section-h1.blind{border-color:#c0a030;}       /* Blind: amber/yellow — matches blind btn */
+section.remote h1,.section-h1.remote h1{color:#8090c0;}.section-h1.remote{border-color:#8090c0;}
+section.adv h1,.section-h1.adv h1{color:#8090d0;}.section-h1.adv{border-color:#6070c0;}
+section.triggers h1,.section-h1.triggers h1{color:#70b070;}.section-h1.triggers{border-color:#508050;}
+
+/* Lowercase i in app names inside all-caps (Bebas) headings */
+h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;letter-spacing:1px;}
+.back-top{display:inline-block;margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);text-decoration:none;letter-spacing:1px;transition:color .15s;}
+.back-top:hover{color:var(--amber);}
+.manual-footer{text-align:center;padding:32px 20px;border-top:1px solid #1a1a14;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:1px;}
+@media(max-width:768px){.sidebar{display:none;}.layout{padding:24px 16px;}}
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-console">
+    <svg viewBox="2.5 6.5 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 11 Q10 9 16 12 V31 Q10 28 4 30 Z" stroke="#d4a84b" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M16 12 Q22 9 28 11 V30 Q22 28 16 31" stroke="#d4a84b" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M7 16 H13 M7 19.5 H12 M7 23 H13" stroke="#d4a84b" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
+      <path d="M19 19.5 H23" stroke="#d4a84b" stroke-width="1" stroke-linecap="round" stroke-dasharray="1.5 1.5"/>
+      <rect x="23" y="17" width="7" height="5" rx="1" fill="#d4a84b" opacity="0.85"/>
+    </svg>
+  </div>
+  <div class="cover-gradient"></div>
+  <div class="cover-text">
+    <div class="cover-brand">M<span class="bi">i</span>KALLBOOK</div>
+    <div class="cover-rule"></div>
+    <div class="cover-sub">Stage Manager's Prompt Book</div>
+    <div style="margin-top:8px;font-size:14px;color:var(--mid);letter-spacing:3px;text-transform:uppercase;">User Manual</div>
+    <div style="margin-top:6px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:2px;">Version 1</div>
+    <div class="cover-scroll" style="margin-top:24px;">&#9660; scroll to begin</div>
+  </div>
+</div>
+
+<!-- ══ CONTENT ════════════════════════════════════════════ -->
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-title">Contents</div>
+    <a href="#intro">1. Introduction</a>
+    <a href="#screen">2. The MiKallbook Screen</a>
+    <a href="#modes">3. Modes</a>
+    <a href="#files">4. Show Files</a>
+    <a href="#script">5. The Script</a>
+    <a href="#depts">6. Departments</a>
+    <a href="#marking">7. Marking GO Points</a>
+    <a href="#runorder">8. Concert Running Order</a>
+    <a href="#calling">9. Calling the Show</a>
+    <a href="#cuelists">10. Cue Lists from MiKonsole and MiKue</a>
+    <a href="#drive">11. DRIVE</a>
+    <a href="#clock">12. Show Clock</a>
+    <a href="#reports">13. Reports</a>
+    <a href="#notes">14. Notes from Phones</a>
+    <a href="#cuesheets">15. Cue Sheets</a>
+    <a href="#operator">16. Operator Mode</a>
+    <a href="#link">17. Link Computers</a>
+    <a href="#booth">18. Booth View</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+  <div class="content">
+
+<section id="intro">
+<h1>1. Introduction</h1>
+<p>MiKallbook is a stage manager's prompt book. It holds the script with every cue marked on it, and gives you a calling view to run the show from. It is part of the Mi suite: it reads the cue lists of <strong>MiKonsole</strong> (lighting) and <strong>MiKue</strong> (sound), and can fire their cues itself when you call GO.</p>
+<p>MiKallbook covers:</p>
+<ul>
+  <li>The script as a PDF (including scanned pages) or as pasted text, with a Paper or Dark page</li>
+  <li>GO points marked on the script, each with one or more department cues, Standby and Warn points, a note, and a calling order</li>
+  <li>A concert running order instead of a script, for choir and concert programs</li>
+  <li>Calling the show with GO and Back, with the script following along</li>
+  <li>DRIVE: GO fires the matching cues in MiKonsole and MiKue</li>
+  <li>A show clock for rehearsals and performances: milestones, holds, run times</li>
+  <li>Rehearsal and performance reports, with notes sent from the team's phones</li>
+  <li>Department cue sheets to print or open in Excel</li>
+  <li>Operator mode, linked computers that follow the stage manager, and a Booth View for a second monitor</li>
+</ul>
+<div class="note">&#9889; Scripts are copyrighted. MiKallbook never uploads a script anywhere. Linked computers each open their own copy, and only the calling position travels over the network.</div>
+<h2>System Requirements</h2>
+<ul>
+  <li>Windows 10 or later (a Mac build is also available)</li>
+  <li>For cue lists and DRIVE: MiKonsole and MiKue running on the same computer, from 2026-10-17 or later</li>
+  <li>For Link Computers and Notes from Phones: the computers and phones on the same network</li>
+</ul>
+<h2>Quick Start</h2>
+<ul>
+  <li>Open <strong>MiKallbook</strong>. It opens in <strong>Edit</strong> mode with an empty show.</li>
+  <li>Click <strong>Import PDF…</strong> for the script, or <strong>Paste Text…</strong>, or <strong>Running Order…</strong> for a concert</li>
+  <li>Click on the script where a cue is called. Pick the department, check the cue number, and press <strong>Enter</strong>. Repeat for every cue.</li>
+  <li>Click <strong>Save</strong> and name the show. MiKallbook creates a show folder and copies the script into it.</li>
+  <li>Click <strong>Show</strong> and press <strong>Space</strong> for each GO. <strong>Backspace</strong> steps back.</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="screen">
+<h1>2. The M<span class="li">i</span>Kallbook Screen</h1>
+<p>The script (or running order) fills the left side. The calling column is on the right, next to the margin where the cue tabs sit.</p>
+<h2>Header</h2>
+<table class="ref-table"><thead><tr><th>Item</th><th>What it does</th></tr></thead><tbody>
+<tr><td>SHOW</td><td>The show name, <strong>New</strong>, <strong>Open</strong>, <strong>Save</strong>, <strong>Save As</strong>, and the file status: <em>unsaved</em>, <em>unsaved changes</em>, or <em>saved</em>. See <a href="#files">4. Show Files</a>.</td></tr>
+<tr><td>Edit / Show / Operator</td><td>The three modes. See <a href="#modes">3. Modes</a>. In Operator mode, the menu beside them picks the department.</td></tr>
+<tr><td>Sharing · n / Linked</td><td>Shown only while this computer is sharing or following. Click it to open the Link window. See <a href="#link">17. Link Computers</a>.</td></tr>
+<tr><td>Utilities ▾</td><td>Reports, Notes from Phones, Cue Sheets, Departments, Link Computers, Booth View, and User Manual. Each item shows what it is doing now (for example <em>sharing · 2 following</em>). Cue Sheets and Departments are only available in Edit mode.</td></tr>
+<tr><td>Exit</td><td>Closes MiKallbook. It asks first, and offers to save if there are unsaved changes.</td></tr>
+</tbody></table>
+<h2>Script Toolbar</h2>
+<table class="ref-table"><thead><tr><th>Control</th><th>What it does</th></tr></thead><tbody>
+<tr><td>Import PDF… / Paste Text…</td><td>Bring in the script (Edit mode). Paste Text… reads <strong>Edit Text…</strong> once the script is text.</td></tr>
+<tr><td>◀ page ▶</td><td>Previous and next page, or type a page number. Page Up / Page Down and Ctrl+Home / Ctrl+End work too.</td></tr>
+<tr><td>− ↔ ↕ +</td><td>Zoom out, fit the page width, fit a whole page, zoom in. Ctrl + mouse wheel also zooms.</td></tr>
+<tr><td>1 Page / 2 Pages</td><td>One page at a time, or two side by side</td></tr>
+<tr><td>Paper / Dark, Contrast</td><td>Page colors. See <a href="#script">5. The Script</a>.</td></tr>
+</tbody></table>
+<h2>Calling Column</h2>
+<table class="ref-table"><thead><tr><th>Item</th><th>What it does</th></tr></thead><tbody>
+<tr><td>Standby</td><td>The next GO point: its cues, "GO n of N · page", its note, and VISUAL when it is called on a visual</td></tr>
+<tr><td>GO</td><td>Calls the Standby GO point. Space does the same.</td></tr>
+<tr><td>Back</td><td>Steps back one GO point. Backspace does the same.</td></tr>
+<tr><td>DRIVE</td><td>Whether GO also fires cues in MiKonsole and MiKue. See <a href="#drive">11. DRIVE</a>.</td></tr>
+<tr><td>Show clock</td><td>Sessions, milestones and holds (Show mode). See <a href="#clock">12. Show Clock</a>.</td></tr>
+<tr><td>Status pills</td><td>Whether MiKonsole's and MiKue's cue lists are coming through. See <a href="#cuelists">10. Cue Lists from MiKonsole and MiKue</a>.</td></tr>
+<tr><td>GO points</td><td>Every GO point in calling order. Click one to jump to it on the script.</td></tr>
+</tbody></table>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="modes">
+<h1>3. Modes</h1>
+<table class="ref-table"><thead><tr><th>Mode</th><th>For</th></tr></thead><tbody>
+<tr><td>Edit</td><td>Bringing in the script, setting up departments, and marking GO points. GO and Back don't call.</td></tr>
+<tr><td>Show</td><td>Calling the show. Marking is locked (a <em>SHOW MODE · editing locked</em> bar shows over the script), and Space / Backspace are GO / Back.</td></tr>
+<tr><td>Operator</td><td>A light, sound, spot or deck operator: one department's cues, large, with script excerpts. See <a href="#operator">16. Operator Mode</a>.</td></tr>
+</tbody></table>
+<p>Your calling position is kept when you switch between modes.</p>
+<p>Entering Show mode at the start of a run (Standby on GO 1, nothing called yet, no session running) asks two things when they apply to the show: whether to <strong>Drive</strong> MiKonsole and MiKue or <strong>Call Only</strong>, and the <strong>Session</strong> kind for the show clock. <strong>Cancel</strong> (Esc) stays in Edit mode. See <a href="#drive">11. DRIVE</a> and <a href="#clock">12. Show Clock</a>.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="files">
+<h1>4. Show Files</h1>
+<p>A MiKallbook show is a folder. The first save creates <code>&lt;Show Name&gt;/&lt;Show Name&gt;.mikallbook</code> with a <code>script</code> folder (a copy of the script PDF) and a <code>reports</code> folder (report, cue sheet and running order PDFs). Copy or move the whole folder to take the show to another computer.</p>
+<table class="ref-table"><thead><tr><th>Button</th><th>What it does</th></tr></thead><tbody>
+<tr><td>New (Ctrl+N)</td><td>Starts an empty show</td></tr>
+<tr><td>Open (Ctrl+O)</td><td>Opens a .mikallbook show (or an older .micallbook show)</td></tr>
+<tr><td>Save (Ctrl+S)</td><td>Saves the show. The first save asks for a name and place.</td></tr>
+<tr><td>Save As (Ctrl+Shift+S)</td><td>Saves a copy as a new show folder</td></tr>
+</tbody></table>
+<ul>
+  <li>New, Open, and Exit ask <em>Save changes?</em> when there are unsaved changes</li>
+  <li>If the script PDF can't be found when a show opens, the page area says so. Click <strong>Locate PDF…</strong> to point MiKallbook at it.</li>
+  <li>Exit with a session running asks whether to <strong>End Session</strong> or <strong>Leave Running</strong>. Exit while other computers are following asks first.</li>
+  <li>Some settings are kept on this computer rather than in the show: Paper / Dark, contrast, zoom, 1 or 2 pages, the Operator department, DRIVE, Booth View's place and contents, and the Link address and code</li>
+</ul>
+<h2>Older Shows (.micallbook)</h2>
+<p>Shows made before MiKallbook was renamed have the extension <code>.micallbook</code>. MiKallbook opens them. The show opens marked as having unsaved changes, and the first save writes <code>&lt;Name&gt;.mikallbook</code> in the same folder, leaving the old file as it was.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="script">
+<h1>5. The Script</h1>
+<h2>Importing a PDF</h2>
+<p>Click <strong>Import PDF…</strong> (Edit mode). Any PDF works, including scanned pages that are only pictures. On a PDF with real text, a mark snaps to the start of the word you click; on a scanned page it goes exactly where you click.</p>
+<h2>Pasting Text</h2>
+<p>For original works, revues, or a script you have typed up, click <strong>Paste Text…</strong>, paste or type the script, and click <strong>Use Text</strong> (Ctrl+Enter). Pages are laid out the same on every computer: US Letter, 65 characters a line, 54 lines a page.</p>
+<ul>
+  <li><strong>Rejoin Lines</strong> repairs text copied out of a PDF, where every printed line ends in a line break. It joins the paragraphs back together and drops page numbers. MiKallbook offers it when the text looks like that. Ctrl+Z in the text box undoes it.</li>
+  <li><strong>Script layout</strong> (on by default) centers character names and indents (stage directions). It changes only how the page looks, not the text.</li>
+  <li><strong>Edit Text…</strong> changes the text later. Marks stay on their words; a mark whose words were deleted is flagged so you can check it.</li>
+</ul>
+<div class="note">&#9889; Switching a show from a PDF to text (or back) keeps every GO point's cues and notes, but not where it sits on the page. Use <strong>Place on script…</strong> in the Inspector to put each one back.</div>
+<h2>Viewing</h2>
+<ul>
+  <li><strong>↔</strong> fits the page width to the window; <strong>↕</strong> fits a whole page. Both keep fitting as the window changes size.</li>
+  <li><strong>Paper</strong> is a warm cream page, easier on the eyes than white. <strong>Dark</strong> shows light grey text on dark grey for a dark booth; the PDF itself is never changed. <strong>Contrast</strong> (Dark only) helps grey scanned pages.</li>
+  <li>In a narrow window the toolbar wraps onto a second row</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="depts">
+<h1>6. Departments</h1>
+<p>Open <strong>Utilities ▸ Departments</strong> (Edit mode). A new show starts with LX, SQ, MIC, FLY, SPOT, VIDEO and DECK.</p>
+<table class="ref-table"><thead><tr><th>Setting</th><th>What it does</th></tr></thead><tbody>
+<tr><td>Color</td><td>The color of its tabs and cues</td></tr>
+<tr><td>Code</td><td>The short name on the tabs (LX, SQ…)</td></tr>
+<tr><td>Name</td><td>The full name (Lighting, Sound…)</td></tr>
+<tr><td>Link</td><td><strong>None</strong>, <strong>MiKonsole</strong> or <strong>MiKue</strong>: which app its cues live in, for the cue lists and DRIVE. LX is linked to MiKonsole and SQ to MiKue to start with.</td></tr>
+<tr><td>Mic numbers</td><td>Calls this department by mic numbers instead of a cue number (on for MIC). See <a href="#mics">Mic Cues</a>.</td></tr>
+<tr><td>▲ ▼</td><td>The order of the department buttons in the picker</td></tr>
+<tr><td>×</td><td>Deletes the department (asks first if cues use it)</td></tr>
+</tbody></table>
+<ul>
+  <li><strong>+ Add department</strong> adds one</li>
+  <li>Departments belong to the show. <strong>Save as default</strong> makes every new show on this computer start with them; <strong>Use suggested set</strong> goes back to the standard seven.</li>
+  <li>MIC (Sound Board) is not linked to an app, so its cues are called but never driven</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="marking">
+<h1>7. Marking GO Points</h1>
+<p>A <strong>GO point</strong> is one place in the script where you say GO. It can carry one cue or several (a combined call such as "LX 12 + SQ 4").</p>
+<h2>Placing a GO Point (Edit Mode)</h2>
+<ul>
+  <li>Click on the script where the cue is called. A quick picker opens at the spot.</li>
+  <li>Pick the department (Tab / Shift+Tab steps through them). The cue number box suggests the next free number; type over it if needed.</li>
+  <li><strong>+ Add</strong> puts another cue in the same GO point</li>
+  <li>Press <strong>Enter</strong> to place it, or <strong>Esc</strong> to cancel</li>
+</ul>
+<p>Each GO point gets a tab in the right margin. Its line runs through the margin and the space above the marked line, so it never strikes through the words. Tabs that would overlap stack.</p>
+<table class="ref-table"><thead><tr><th>Action</th><th>How</th></tr></thead><tbody>
+<tr><td>Select</td><td>Click its tab. The Inspector opens from the left.</td></tr>
+<tr><td>Change its cues</td><td>Double-click the tab</td></tr>
+<tr><td>Move it</td><td>Drag the arrow tip</td></tr>
+<tr><td>Delete it</td><td>Select it and press Delete (or Backspace)</td></tr>
+<tr><td>Undo / Redo</td><td>Ctrl+Z / Ctrl+Y (or Ctrl+Shift+Z). Replacing or editing the script text starts a fresh history.</td></tr>
+<tr><td>Deselect</td><td>Esc</td></tr>
+</tbody></table>
+<h2>The Inspector</h2>
+<table class="ref-table"><thead><tr><th>Setting</th><th>What it does</th></tr></thead><tbody>
+<tr><td>Cues</td><td>Department and number for each cue; add or remove cues</td></tr>
+<tr><td>Standby, Warn</td><td>Click <strong>Place…</strong>, then click the script where you give the standby (or warning). The panel steps aside while you do. They show as dashed SB and W tabs.</td></tr>
+<tr><td>Note</td><td>Shown under Standby, in the Booth View, Operator mode and cue sheets</td></tr>
+<tr><td>Called on visual</td><td>Marks the cue as taken on a visual (VIS on the tab, VISUAL on Standby)</td></tr>
+<tr><td>Milestone</td><td>House Open, Places, Act 1 Up … Act 5 Down. See <a href="#milestones">Milestones</a>.</td></tr>
+<tr><td>Earlier / Later</td><td>Calling order is reading order (page, then top to bottom). Earlier and Later override it for this GO point (↕ in the list); <strong>Reading order</strong> puts it back.</td></tr>
+<tr><td>Checked</td><td>Shown on a mark flagged after a text edit, once you have checked it</td></tr>
+<tr><td>Place on script…</td><td>Shown on a GO point that lost its position when the script was swapped</td></tr>
+</tbody></table>
+<h2 id="mics">Mic Cues</h2>
+<p>A department with <strong>Mic numbers</strong> on (MIC) is called by mics rather than a cue number. In the picker and the Inspector, a mic cue is one or more groups, each a list of mics (<code>4-8, 11</code>) set to IN or OUT (<strong>+ Group</strong> adds another). It reads <strong>MIC 4–8, 11 IN, 2–3 OUT</strong> everywhere it appears.</p>
+<h2 id="milestones">Milestones</h2>
+<p>A GO point can carry one <strong>milestone</strong>: House Open, Places, Act 1 Up, Act 1 Down, and so on up to Act 5 Down. A milestone can be the GO point's only cue (Standby reads HOUSE OPEN), or sit with department cues (ACT 2 DOWN · LX 40, for house lights up at the end). Each milestone can be on one GO point only; setting it on another moves it there. Put pre-show calls at the top of page 1 or on the title page.</p>
+<p>In Show mode, calling a milestone GO point logs its time on the show clock. See <a href="#clock">12. Show Clock</a>.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="runorder">
+<h1>8. Concert Running Order</h1>
+<p>For a choir or concert program, use a running order instead of a script. On a new show's empty screen, click <strong>Running Order…</strong>. GO points already marked keep their cues and wait to be put on an item.</p>
+<h2>Building It (Edit Mode)</h2>
+<ul>
+  <li>Each item has a kind (Song, Speech, Transition, Riser move, Intermission, Other), a title, an estimated length (m:ss; typing 4 gives 4:00), performers or group, and optional cue lines or lyrics, one per line</li>
+  <li><strong>+ Add Item</strong> adds one at the end. ▲ ▼ move an item; ✕ deletes it (its GO points can be kept for another item).</li>
+  <li>The header shows the number of items and the total length; each item shows when it starts (+m:ss from the first item)</li>
+  <li><strong>+ GO</strong> on an item opens the quick picker. Click a GO to select it; the Inspector then sets its <strong>Item</strong> and <strong>On</strong> (the start of the item, or one of its cue lines).</li>
+  <li>Calling order follows the items, the start of an item before its lines. Earlier / Later still work; <strong>Item order</strong> resets.</li>
+</ul>
+<h2>In Show Mode</h2>
+<p>The Standby GO's item is highlighted and kept in view, called GO points dim, and clicking a GO sets Standby there. Everything else (GO, Back, DRIVE, Link, Booth View, Operator mode, cue sheets, reports and notes) works as it does with a script.</p>
+<h2>Printing</h2>
+<p><strong>Print</strong> or <strong>Save PDF</strong> lists #, item, kind, performers, cue lines, length and start time. <strong>With cues</strong> adds each item's cues for the crew (<code>Running Order.pdf</code>); without it the file is <code>Running Order - Performers.pdf</code>. Both go in the show's <code>reports</code> folder.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="calling">
+<h1>9. Calling the Show</h1>
+<ul>
+  <li>Switch to <strong>Show</strong> mode. Standby shows the next GO point.</li>
+  <li><strong>GO</strong> (Space) moves Standby to the next GO point. A second press within 0.3 seconds is ignored.</li>
+  <li><strong>Back</strong> (Backspace) steps back one GO point</li>
+  <li>On the script, the Standby GO's tab is enlarged and its line gets a highlighter band; GO points already called are dimmed. The script scrolls so the Standby GO sits about a third of the way down.</li>
+  <li>To pick up mid-rehearsal, click a tab (or a running-order row) to set Standby there. Nothing fires.</li>
+  <li>After the last GO, the Standby strip shows END. Back steps back into the show; clicking GO 1 in the list starts the next run fresh.</li>
+</ul>
+<p>With DRIVE off, GO only moves your calling position: operators press their own GO. With DRIVE on, GO also fires the cues. See <a href="#drive">11. DRIVE</a>.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="cuelists">
+<h1>10. Cue Lists from M<span class="li">i</span>Konsole and M<span class="li">i</span>Kue</h1>
+<p>While MiKonsole and MiKue run on this computer, MiKallbook reads their cue lists for the departments linked to them (LX to MiKonsole, SQ to MiKue). Nothing has to be set up in MiKue. In MiKonsole, open <strong>Settings ▸ Phone Remote</strong> and click <strong>Connect</strong>: its cue list only comes through Phone Remote.</p>
+<h2>Status Pills</h2>
+<p>The calling column shows a pill for each linked app: <strong>green</strong> with the number of cues; <strong>amber</strong> when MiKonsole is running with Phone Remote not connected, or the app is an older version; <strong>grey</strong> when it is off. Hover over a pill for details.</p>
+<h2>Using the Lists</h2>
+<ul>
+  <li><strong>Quick picker:</strong> under the number, what that cue is ("Sunrise", "Doorbell · fires LX 1.5"), and the app's cue list. Click a cue, or use ↑ ↓ in the number box to step through it. Typing any number still works.</li>
+  <li><strong>Inspector:</strong> the same line under each cue, and the number boxes offer the list as a dropdown</li>
+  <li>A cue that isn't in the app's list gets a wavy red underline on its tab and a red line in the Inspector, and the calling column shows "n not found" (click it to go to the first). Nothing is flagged while an app isn't running.</li>
+  <li>MiKonsole sends its cue list when Phone Remote connects, and on GO, Back, Stop and Go To. After opening a show or editing cues in MiKonsole, press GO there once (or Disconnect and Connect) to refresh MiKallbook's list.</li>
+</ul>
+<h2>Combo Cues</h2>
+<p>When a MiKue cue fires a MiKonsole cue (itself, or further along its Continue / Follow chain), MiKallbook adds that LX cue to the GO point, and the tab reads <strong>LX 1.5 / SQ 2</strong>. A combo cue can't be edited on its own: changing or removing the SQ cue updates it. An LX cue you typed in yourself that MiKue also fires becomes the combo cue. A MiKue cue that just sends GO to MiKonsole shows as "LX next". If MiKue's cues change later, the Inspector offers <strong>Update from MiKue</strong>.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="drive">
+<h1>11. DRIVE</h1>
+<p>With <strong>DRIVE</strong> on, calling GO in MiKallbook fires the GO point's cues in MiKonsole and MiKue at the same moment, so nobody presses GO in those apps.</p>
+<h2>Turning It On</h2>
+<ul>
+  <li>Entering Show mode at the start of a run asks <em>Drive MiKonsole and MiKue?</em> (naming only the apps this show's departments are linked to): <strong>Drive</strong> (Enter), <strong>Call Only</strong>, or <strong>Cancel</strong> (Esc)</li>
+  <li>The <strong>DRIVE</strong> button next to Back changes it during the show (remembered on this computer)</li>
+  <li>With DRIVE on, the Show mode bar turns red: <em>GO DRIVES MiKonsole + MiKue</em>. With DRIVE off it is amber: <em>DRIVE OFF · GO doesn't fire MiKonsole + MiKue</em>.</li>
+</ul>
+<h2>What Happens</h2>
+<table class="ref-table"><thead><tr><th>Action</th><th>With DRIVE on</th></tr></thead><tbody>
+<tr><td>GO</td><td>Fires each cue in its department's linked app: LX cues in MiKonsole, SQ cues in MiKue. MiKonsole's cue is found by its number at that moment, so cues inserted in MiKonsole don't shift anything. For a combo cue only the SQ cue is sent, and MiKue fires the light, so it never fires twice.</td></tr>
+<tr><td>Back</td><td>Sends Back to MiKonsole if the GO point being stepped back over changed the lights. Stops the sounds that GO point started in MiKue (each SQ cue and whatever it set off, with a 1-second fade). Sounds started earlier, such as pre-show music, keep playing.</td></tr>
+<tr><td>Standby</td><td>MiKue's Standby follows MiKallbook's: it is set to the next SQ cue from your calling position</td></tr>
+</tbody></table>
+<ul>
+  <li>A cue that can't be sent never stops the show. MiKallbook moves on, the GO button flashes red, and a message says what wasn't sent and why (not in the app's list, Phone Remote not connected, MiKue not running…)</li>
+  <li>Each app is only needed for the departments linked to it. For a sound-only show, set LX's Link to None (or delete LX) so nothing waits on MiKonsole.</li>
+  <li>MiKonsole and MiKue must run on this computer, with MiKonsole's Phone Remote on Connect</li>
+  <li>DRIVE never fires in Edit or Operator mode, or on a computer following the stage manager</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="clock">
+<h1>12. Show Clock</h1>
+<p>A <strong>session</strong> is one rehearsal or performance. The timing box sits in the calling column below Back and DRIVE, in Show mode, on the stage manager's computer.</p>
+<h2>Running a Session</h2>
+<ul>
+  <li><strong>Start Session</strong> asks the kind: Rehearsal, Tech, Dress, Preview or Performance (Enter = Performance). Each kind is numbered on its own (Performance 3).</li>
+  <li>The big button then logs the next milestone: House Open → Places → Act 1 Up → Act 1 Down → Act 2 Up … → the last act Down, then <strong>End Session</strong>. A second click within 1 second is ignored.</li>
+  <li>The box shows where the show is (HOUSE OPEN, PLACES, ACT 2, INTERMISSION, SHOW DOWN) and the time since then, with a line of run times: <code>Act 1 1:00:00 · Int 15:00 · Act 2 … · Held 5:00</code></li>
+  <li><strong>Hold</strong> starts and ends a hold, and the box turns red. Pick a reason while it runs (Late house, Technical, Cast, Audience, Weather, Other). An act going Up ends a hold.</li>
+</ul>
+<h2>With Milestone Cues</h2>
+<p>When the show has milestones on its GO points (see <a href="#milestones">Milestones</a>), calling them logs the times instead of the big button:</p>
+<ul>
+  <li>With no session running, the first milestone GO starts one, of the kind chosen when Show mode started</li>
+  <li>The last act's Down ends the session (Reopen it in the Session Log if that was early)</li>
+  <li>Back over a milestone GO point takes its time out again</li>
+  <li>The timing box keeps Hold, the reason, and the Session Log</li>
+</ul>
+<h2>Session Log</h2>
+<p><strong>Session Log</strong> opens the times of any session of the show (newest first, from the menu at the top). In it you can:</p>
+<ul>
+  <li>Change any time, for a milestone pressed late, or delete one</li>
+  <li>Add a milestone or another moment ("Pre-show speech") at a typed time, or a hold that wasn't pressed</li>
+  <li>Set the kind, number, date and number of acts (1–5)</li>
+  <li>End, Reopen or Delete the session</li>
+</ul>
+<p>Run times: each act from its Up to its Down (holds inside an act are shown); intermission from one act's Down to the next act's Up; running time from the first Up to the last Down.</p>
+<ul>
+  <li>Only one session runs at a time. It keeps running in Edit mode, and is saved with the show: open the show again and it carries on.</li>
+  <li>Until the show is saved, the running session is also kept on this computer. If MiKallbook closes without saving, opening the show again offers to restore the times.</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="reports">
+<h1>13. Reports</h1>
+<p>Every session has a report. Open <strong>Utilities ▸ Reports</strong>, or <strong>Report</strong> in the Session Log.</p>
+<ul>
+  <li>Left: this show's sessions, newest first, with how many fields are filled in. <strong>+ New Report</strong> adds one for a rehearsal that wasn't timed.</li>
+  <li>Right: the report. <strong>Times</strong> come from the show clock, with holds and other moments; <strong>Edit Times</strong> opens the Session Log. Then the template's fields.</li>
+  <li>Typing marks the show as changed. Ctrl+S saves without leaving the window. Report text has the same crash protection as session times.</li>
+  <li><strong>Save PDF</strong> writes <code>reports\&lt;date&gt; &lt;Kind n&gt;.pdf</code> in the show folder (saving again replaces it), then offers Open PDF or Show in Folder. A show that has never been saved asks to be saved first.</li>
+  <li><strong>Print</strong> (Ctrl+P) opens the printer dialog. Both use a Letter-size page.</li>
+  <li>Esc closes the window. GO and Back don't respond while it is open.</li>
+</ul>
+<h2>The Template</h2>
+<p>The suggested template has: Stage manager, Call time, House count, Absent / late, General, one field per department, Scenic &amp; props, Costumes, hair &amp; makeup, Cast, Front of house, Injuries &amp; safety, and Next call.</p>
+<p><strong>Edit Template</strong> renames, changes the kind of, reorders (▲ ▼) or deletes fields, and <strong>+ Add field</strong> adds one. Field kinds: one line, several lines, number, time (a clock picker), and yes / no. <strong>Carry forward</strong> starts each new report with the last report's entry (useful for Stage manager and Next call). <strong>Use Suggested Fields</strong> resets the template, keeping entries in fields with the same name.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="notes">
+<h1>14. Notes from Phones</h1>
+<p>Directors, choreographers, music directors and others can send rehearsal notes from their own phones or laptops straight into the report.</p>
+<ul>
+  <li>Open <strong>Utilities ▸ Notes from Phones</strong> (or <strong>Take Notes from Phones</strong> in the Reports window). This starts sharing if this computer isn't already, and shows a large <strong>QR code</strong>, the address (<code>http://&lt;this computer&gt;:8095/notes</code>) and a 4-digit code.</li>
+  <li>Scanning the QR code opens the notes page with the code filled in. Any browser on the same network works.</li>
+  <li>On the notes page: name and role (remembered on that device), <strong>Note for</strong> (the template's several-lines fields: General, each department, Cast…), <strong>Cue (if needed)</strong> with a <strong>Last</strong> button for the GO point called last, the note, and <strong>Send Note</strong> (Ctrl+Enter on a laptop)</li>
+  <li>Each note is added to the end of that field, for example <code>LX 12 · Jane (Director): Spot late on entrance</code>. If the report is open the box flashes green; a message shows either way.</li>
+  <li>Notes go to the running session's report, else the latest report dated today, else a new Rehearsal report made by the first note</li>
+</ul>
+<div class="note">&#9889; Notes can only add text to a report. Nothing on the notes page can change anything else in MiKallbook. A wrong code is refused.</div>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="cuesheets">
+<h1>15. Cue Sheets</h1>
+<p><strong>Utilities ▸ Cue Sheets</strong> (Edit mode) lists the cues in calling order for <strong>All departments</strong> or one department (click on the left, or ↑ ↓).</p>
+<table class="ref-table"><thead><tr><th>Column</th><th>Shows</th></tr></thead><tbody>
+<tr><td>GO</td><td>The GO point's number</td></tr>
+<tr><td>Cue</td><td>The cue (or cues), and VISUAL</td></tr>
+<tr><td>Page</td><td>The script page (or Item, in a running order)</td></tr>
+<tr><td>Script line</td><td>The line the GO is on, with the Warn and Standby lines above it marked W and SB. A scanned PDF has no text, so only page numbers show.</td></tr>
+<tr><td>Also called · Note</td><td>Other departments' cues on the same GO, "LX 1.5 fired by SQ 2" for combo cues, and the GO point's note</td></tr>
+</tbody></table>
+<p><strong>Save PDF</strong> (Letter, landscape) and <strong>Save CSV</strong> (opens in Excel) go into the show's <code>reports</code> folder, for example <code>Cue Sheet - LX Lighting.pdf</code>. Saving again replaces it. <strong>Print</strong> (Ctrl+P) opens the printer dialog.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="operator">
+<h1>16. Operator Mode</h1>
+<p>For a light, sound, spot or deck operator. Click <strong>Operator</strong> and pick the department in the menu beside it (remembered on this computer). The window shows only that department:</p>
+<ul>
+  <li><strong>The next cue, large</strong>, with its state against the stage manager's calling position: <strong>WAITING</strong> (two or more GOs away), <strong>WARN</strong> (the GO after the stage manager's Standby), <strong>STANDBY</strong>, and <strong>GO</strong> (green, just fired). Other cues in the same GO show as "with SQ 4". Note and VISUAL included.</li>
+  <li><strong>A script excerpt:</strong> the lines around the cue's Warn (W), Standby (SB) and GO, with the GO line highlighted. It follows Paper / Dark.</li>
+  <li><strong>The next two cues</strong>, each with a short excerpt</li>
+</ul>
+<p>It follows this computer's calling (Space / Backspace here), or the stage manager's computer when linked. See <a href="#link">17. Link Computers</a>.</p>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="link">
+<h1>17. Link Computers</h1>
+<p>Every computer opens its own copy of the same show folder. The stage manager's MiKallbook shares; the others join and follow.</p>
+<h2>Stage Manager</h2>
+<ul>
+  <li><strong>Utilities ▸ Link Computers ▸ Start Sharing</strong>. The window shows this computer's address (for example <code>192.168.1.20</code>) and a 4-digit code, and lists the computers following.</li>
+  <li>The code stays the same from night to night. <strong>New Code</strong> disconnects everyone.</li>
+  <li>The header shows a blue <strong>Sharing · n</strong> button; click it to open the Link window</li>
+</ul>
+<h2>Operators</h2>
+<ul>
+  <li><strong>Utilities ▸ Link Computers</strong>, type the stage manager's address and code, and click <strong>Join</strong> (both are remembered). The header shows <strong>Linked</strong>.</li>
+  <li>Standby, GO (with the green flash) and Back all come from the stage manager. Space and Backspace do nothing here.</li>
+  <li><strong>LINK LOST</strong>: a red banner and button. MiKallbook keeps trying to reconnect every 1.5 seconds. Until it's back, Space and Backspace work on this computer; when it reconnects the stage manager's position takes over again.</li>
+</ul>
+<h2>Copies That Differ</h2>
+<p>Each show file has a hidden ID, and the stage manager's computer sends a check of every GO point. If this copy differs (GO points changed, missing or extra, or a different calling order), a yellow banner lists them. A different show entirely gets a red banner and isn't followed.</p>
+<h2>Network</h2>
+<ul>
+  <li>All computers must be on the same network, and the network must be set to <strong>Private</strong> in Windows</li>
+  <li>When Windows Firewall asks, allow MiKallbook on <strong>Private</strong> networks</li>
+  <li>MiKallbook uses port 8095 (8096–8099 if that one is taken; the address then shows <code>:port</code>)</li>
+  <li>Only the calling position and checks go over the network, never the script. Operators can't control the stage manager's computer.</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="booth">
+<h1>18. Booth View</h1>
+<p><strong>Utilities ▸ Booth View</strong> opens a second window for a booth monitor. It stays dark. The menu in its top bar picks what it shows (remembered on this computer):</p>
+<ul>
+  <li><strong>Full call:</strong> the Standby cues in large type with the note and VISUAL, "GO n of N · page", the last cue called, the next three, a clock, and a green flash on each GO</li>
+  <li><strong>One department:</strong> the Operator view for that department (WAITING / WARN / STANDBY / GO, the next cue with its script excerpt, and the next two cues), whatever mode the main window is in</li>
+</ul>
+<ul>
+  <li>The top bar says SHOW, OPERATOR, EDIT · not calling, FOLLOWING THE SM, or LINK LOST (red)</li>
+  <li>The first time, it opens on another monitor if there is one. After that it remembers its monitor, position, size and full screen.</li>
+  <li><strong>F11</strong> or a double-click toggles full screen</li>
+  <li>Space and Backspace pressed while it is in front are GO and Back in MiKallbook</li>
+  <li>Close it with its window ✕ or from the Utilities menu. Closing MiKallbook closes it.</li>
+</ul>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+<section id="appendix">
+<h1>Appendix</h1>
+<h2>Keyboard Shortcuts</h2>
+<table class="ref-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td>F1</td><td>Open this manual</td></tr>
+<tr><td>Space</td><td>GO (Show and Operator mode)</td></tr>
+<tr><td>Backspace</td><td>Back (Show and Operator mode); delete the selected GO point (Edit mode)</td></tr>
+<tr><td>Delete</td><td>Delete the selected GO point (Edit mode)</td></tr>
+<tr><td>Esc</td><td>Cancel placing, deselect, close a window, or close the Utilities menu</td></tr>
+<tr><td>Enter</td><td>Place the GO point in the quick picker</td></tr>
+<tr><td>Tab / Shift+Tab</td><td>Step through departments in the quick picker</td></tr>
+<tr><td>Ctrl+Z / Ctrl+Y</td><td>Undo / redo marking (Edit mode)</td></tr>
+<tr><td>Page Up / Page Down</td><td>Previous / next page</td></tr>
+<tr><td>Ctrl+Home / Ctrl+End</td><td>First / last page</td></tr>
+<tr><td>Ctrl + wheel</td><td>Zoom</td></tr>
+<tr><td>Ctrl+N / Ctrl+O</td><td>New / Open show</td></tr>
+<tr><td>Ctrl+S / Ctrl+Shift+S</td><td>Save / Save As</td></tr>
+<tr><td>Ctrl+P</td><td>Print (Reports, Cue Sheets)</td></tr>
+<tr><td>Ctrl+Enter</td><td>Use Text (Paste Text window); Send Note (notes page)</td></tr>
+<tr><td>F11</td><td>Full screen (Booth View)</td></tr>
+</tbody></table>
+<h2>Glossary</h2>
+<table class="ref-table"><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>GO point</td><td>One place in the script where GO is called, carrying one or more cues</td></tr>
+<tr><td>Standby</td><td>The next GO point to be called</td></tr>
+<tr><td>Warn</td><td>Where the warning for a GO point is given (W tab)</td></tr>
+<tr><td>Calling order</td><td>The order GO points are called in: reading order unless changed with Earlier / Later</td></tr>
+<tr><td>Combo cue</td><td>A lighting cue fired by a MiKue sound cue, shown as LX 1.5 / SQ 2</td></tr>
+<tr><td>Milestone</td><td>House Open, Places, Act Up / Down: show-clock moments that can be called as cues</td></tr>
+<tr><td>Session</td><td>One timed rehearsal or performance</td></tr>
+<tr><td>DRIVE</td><td>MiKallbook's GO also firing the cues in MiKonsole and MiKue</td></tr>
+<tr><td>Running order</td><td>A list of concert items used instead of a script</td></tr>
+<tr><td>.mikallbook</td><td>The MiKallbook show file (.micallbook before the rename)</td></tr>
+</tbody></table>
+<a href="#" class="back-top">&#8593; top</a>
+</section>
+
+
+  </div>
+</div>
+
+<div class="manual-footer">MiKallbook &middot; All rights reserved &middot; 2026.1.0 &middot; Manual v1</div>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.sidebar a');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector('.sidebar a[href="#' + e.target.id + '"]');
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

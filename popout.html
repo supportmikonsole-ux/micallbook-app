@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self' file:; script-src 'self' file:; style-src 'self' file: 'unsafe-inline'; font-src 'self' file: data:; img-src 'self' file: data:">
+<title>MiKallbook · Booth View</title>
+<link rel="stylesheet" href="mi-fonts.css">
+<link rel="stylesheet" href="mi-theme.css">
+<style>
+  html, body { height: 100%; }
+  body { background: #111111; color: var(--mi-text); overflow: hidden; user-select: none; cursor: default; }
+  #booth { height: 100vh; display: grid; grid-template-rows: auto 1fr auto; padding: 2.2vh 2.6vw; gap: 2vh; }
+
+  .b-head { display: flex; align-items: baseline; gap: 2vw; border-bottom: 1px solid #3a3428; padding-bottom: 1.2vh; }
+  .b-show { font-family: var(--mi-font-ui); font-weight: 700; font-size: clamp(14px, 2.4vh, 26px); letter-spacing: 3px; text-transform: uppercase; color: var(--mi-text-dim); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .b-mode { font-family: var(--mi-font-mono); font-size: clamp(11px, 1.7vh, 18px); color: var(--mi-text-muted); letter-spacing: 1px; }
+  .b-mode.show { color: #ffe880; }
+  .b-mode.lost { color: #ffd0d0; background: #5a1a1a; border: 1px solid #e05050; border-radius: 6px; padding: 0.3vh 0.8vw; font-weight: 700; }
+  .b-view { font-size: clamp(11px, 1.6vh, 16px); opacity: 0.45; transition: opacity 0.15s; max-width: 220px; }
+  .b-view:hover, .b-view:focus { opacity: 1; }
+
+  /* One department's view (same states as Operator mode) */
+  .dept-only { display: none !important; }
+  body.dept .dept-only { display: flex !important; }
+  body.dept .all-only { display: none !important; }
+  .d-main { justify-content: flex-start; gap: 1.2vh; padding: 2.4vh 2.6vw; }
+  .d-top { display: flex; align-items: baseline; gap: 2vw; }
+  .d-dept { font-family: var(--mi-font-brand); font-size: clamp(20px, 4.4vh, 52px); letter-spacing: 2px; line-height: 1; }
+  .d-state { font-family: var(--mi-font-brand); font-size: clamp(20px, 4.4vh, 52px); letter-spacing: 6px; color: var(--mi-text-muted); line-height: 1; }
+  .d-sm { font-family: var(--mi-font-mono); font-size: clamp(11px, 1.8vh, 20px); color: var(--mi-text-dim); margin-left: auto; }
+  .d-main .b-cues { font-size: clamp(44px, 13vh, 190px); }
+  .d-with { font-family: var(--mi-font-ui); font-weight: 600; font-size: clamp(16px, 3.4vh, 40px); color: var(--mi-text-dim); letter-spacing: 0.5px; }
+  .d-done { font-family: var(--mi-font-ui); font-weight: 700; font-size: clamp(22px, 5vh, 60px); color: var(--mi-text-dim); }
+  .d-main.st-warn { border-color: #c09030; border-style: dashed; }
+  .d-main.st-warn .d-state { color: #e0b050; }
+  .d-main.st-standby { border-color: #e0c040; background: #2e2608; }
+  .d-main.st-standby .d-state { color: #ffe880; }
+  .d-main.st-go { border-color: #40a878; background: #1e4838; }
+  .d-main.st-go .d-state { color: #a0f0d0; }
+  .d-ex { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 1vh; margin-top: 0.6vh; }
+  .d-clip { position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #1f1f1f; flex-shrink: 0; }
+  .d-clip img { display: block; width: 100%; height: 100%; filter: invert(0.88) hue-rotate(180deg); }
+  .d-band { position: absolute; border-radius: 4px; background: rgba(224, 192, 64, 0.26); }
+  .d-tag { position: absolute; left: 0.6%; transform: translateY(-50%); padding: 0.1vh 0.6vw; border-radius: 5px; border: 2px solid;
+           background: rgba(30,28,24,0.9); font-family: var(--mi-font-mono); font-weight: 700; font-size: clamp(10px, 1.7vh, 20px); letter-spacing: 1px; }
+  .d-arrow { position: absolute; width: 0; height: 0; transform: translateX(-50%);
+             border-left: 0.55vh solid transparent; border-right: 0.55vh solid transparent; border-top: 0.8vh solid; }
+  .d-page { position: absolute; right: 1%; top: 4%; font-family: var(--mi-font-mono); font-size: clamp(10px, 1.4vh, 15px); color: #8a8070; }
+  .d-exnone { font-family: var(--mi-font-mono); font-size: clamp(11px, 1.8vh, 18px); color: var(--mi-text-muted); }
+  #dFoot .b-col { flex: 1; }
+  .d-next { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; }
+  .d-card { min-width: 0; }
+  .d-card-head { display: flex; gap: 1.2vw; align-items: baseline; font-family: var(--mi-font-brand); font-size: clamp(22px, 5vh, 60px); letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; }
+  .d-card-meta { font-family: var(--mi-font-mono); font-size: clamp(11px, 1.7vh, 18px); color: var(--mi-text-muted); }
+  .d-mics { font-family: var(--mi-font-ui); font-weight: 600; font-size: clamp(16px, 3.4vh, 40px); color: #d8eab0; white-space: pre-line; line-height: 1.2; }
+  .d-mics:empty { display: none; }
+  .d-card-mics { font-family: var(--mi-font-ui); font-weight: 600; font-size: clamp(13px, 2.2vh, 26px); color: #d8eab0; white-space: pre-line; margin-top: 0.4vh; }
+  .d-card-note { font-family: var(--mi-font-ui); font-size: clamp(13px, 2.2vh, 26px); color: #e8dcb8; margin-top: 0.4vh; }
+  .b-clock { font-family: var(--mi-font-brand); font-size: clamp(22px, 5vh, 56px); letter-spacing: 3px; color: var(--mi-text); }
+
+  .b-main { display: flex; flex-direction: column; justify-content: center; gap: 1.6vh; min-height: 0;
+            border: 2px solid #3a3428; border-radius: 16px; padding: 3vh 3vw; background: #181612; transition: background 0.12s, border-color 0.12s; }
+  .b-main.flash { background: #1e4838; border-color: #40a878; }
+  .b-label { font-family: var(--mi-font-mono); font-size: clamp(12px, 2vh, 22px); letter-spacing: 4px; color: var(--mi-text-dim); text-transform: uppercase; }
+  .b-cues { font-family: var(--mi-font-brand); font-size: clamp(48px, 17vh, 240px); line-height: 0.95; letter-spacing: 3px;
+            display: flex; flex-wrap: wrap; gap: 0 4vw; align-items: baseline; }
+  .b-cues .end { color: var(--mi-text-dim); }
+  /* A Warn / Standby call as the next step */
+  .b-step { display: block; flex-basis: 100%; font-family: var(--mi-font-mono); font-size: clamp(18px, 4vh, 48px); letter-spacing: 0.4em; line-height: 1.2; }
+  .b-step.warn { color: #e0b050; }
+  .b-step.standby { color: #ffe880; }
+  .b-meta { font-family: var(--mi-font-mono); font-size: clamp(13px, 2.6vh, 30px); color: var(--mi-text-dim); display: flex; gap: 1.5vw; align-items: center; flex-wrap: wrap; }
+  .b-visual { font-family: var(--mi-font-ui); font-weight: 700; color: #111; background: #e0c040; border-radius: 6px; padding: 0.2vh 0.8vw; letter-spacing: 2px; }
+  .b-note { font-family: var(--mi-font-ui); font-size: clamp(18px, 4.2vh, 52px); color: #e8dcb8; line-height: 1.15; }
+  .b-note:empty { display: none; }
+
+  .b-foot { display: grid; grid-template-columns: 1fr 2.4fr; gap: 2vw; }
+  .b-col { min-width: 0; }
+  .b-small { font-family: var(--mi-font-mono); font-size: clamp(11px, 1.7vh, 18px); letter-spacing: 3px; color: var(--mi-text-muted); text-transform: uppercase; margin-bottom: 0.8vh; }
+  .b-last, .b-next { font-family: var(--mi-font-ui); font-weight: 700; font-size: clamp(16px, 3.4vh, 40px); letter-spacing: 1px; }
+  .b-last { opacity: 0.55; }
+  .b-next { display: flex; flex-direction: column; gap: 0.6vh; }
+  .b-row { display: flex; gap: 1.2vw; align-items: baseline; white-space: nowrap; overflow: hidden; }
+  .b-n { font-family: var(--mi-font-mono); font-weight: 400; font-size: 0.6em; color: var(--mi-text-muted); min-width: 2.2em; text-align: right; }
+  .b-pg { font-family: var(--mi-font-mono); font-weight: 400; font-size: 0.55em; color: var(--mi-text-muted); }
+  .b-sep { color: var(--mi-text-muted); margin: 0 0.2em; }
+  .b-hint { position: fixed; right: 1.2vw; bottom: 0.8vh; font-family: var(--mi-font-mono); font-size: 10px; color: #4a4436; }
+  .b-empty { color: var(--mi-text-muted); font-weight: 400; }
+</style>
+</head>
+<body>
+<div id="booth">
+  <div class="b-head">
+    <div class="b-show" id="bShow">MiKallbook</div>
+    <div class="b-mode" id="bMode"></div>
+    <select class="mi-select b-view" id="bView" title="Show the full call, or one department's cues"></select>
+    <div class="b-clock" id="bClock"></div>
+  </div>
+  <div class="b-main d-main dept-only" id="dMain">
+    <div class="d-top"><div class="d-dept" id="dDept"></div><div class="d-state" id="dState"></div><div class="d-sm" id="dSm"></div></div>
+    <div class="b-cues" id="dCues"></div>
+    <div class="d-mics" id="dMics"></div>
+    <div class="b-meta" id="dMeta"></div>
+    <div class="b-note" id="dNote"></div>
+    <div class="d-ex" id="dEx"></div>
+  </div>
+  <div class="b-foot dept-only" id="dFoot">
+    <div class="b-col">
+      <div class="b-small">Then</div>
+      <div class="d-next" id="dNext"></div>
+    </div>
+  </div>
+  <div class="b-main all-only" id="bMain">
+    <div class="b-label">Standby</div>
+    <div class="b-cues" id="bCues">-</div>
+    <div class="b-meta" id="bMeta"></div>
+    <div class="b-note" id="bNote"></div>
+  </div>
+  <div class="b-foot all-only">
+    <div class="b-col">
+      <div class="b-small">Last called</div>
+      <div class="b-last" id="bLast"></div>
+    </div>
+    <div class="b-col">
+      <div class="b-small">Coming up</div>
+      <div class="b-next" id="bNext"></div>
+    </div>
+  </div>
+</div>
+<div class="b-hint">F11 or double-click = full screen</div>
+<script src="popout.js"></script>
+</body>
+</html>

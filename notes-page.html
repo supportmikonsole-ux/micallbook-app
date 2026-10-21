@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>MiKallbook Notes</title>
+<!--
+  MiKallbook rehearsal notes page. Served by the SM's MiKallbook on the booth
+  network (link-main.js, GET /notes) while it is sharing. Directors,
+  choreographers, music directors… open it in any browser, with the show's
+  4-digit code, and send notes into the current report.
+  Self-contained: no outside files, nothing leaves the local network.
+-->
+<style>
+  :root {
+    --bg: #161616; --panel: #2a2928; --well: #1c1c1c; --text: #f0e8d0; --dim: #c0b090; --muted: #8a8070;
+    --line: #4a4436; --gold: #c09030; --go: #1e4838; --go-bd: #40a878; --go-fg: #a0f0d0; --err: #ffb0b0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 17px; line-height: 1.35;
+    padding: max(14px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    max-width: 640px; margin: 0 auto;
+  }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .brand { font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-size: 15px; color: var(--gold); }
+  .show { font-weight: 600; color: var(--text); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .to { margin: 10px 0 4px; font-size: 14px; color: var(--dim); }
+  .to b { color: var(--text); }
+  label { display: block; margin-top: 14px; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--dim); }
+  input, select, textarea, button { font: inherit; color: inherit; }
+  input, select, textarea {
+    display: block; width: 100%; margin-top: 5px; padding: 11px 12px; border-radius: 8px;
+    background: var(--well); border: 1px solid #5a5a5a; color: var(--text); outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  textarea { min-height: 120px; resize: vertical; }
+  .row { display: flex; gap: 8px; align-items: stretch; }
+  .row > input { flex: 1; min-width: 0; }
+  button { cursor: pointer; border-radius: 8px; border: 1px solid #686868; background: #2c2c2c; padding: 11px 14px; }
+  button:active { transform: scale(0.98); }
+  .row button { margin-top: 5px; white-space: nowrap; font-size: 15px; color: var(--dim); }
+  .send { display: block; width: 100%; margin-top: 16px; padding: 15px; font-size: 18px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+          background: var(--go); border-color: var(--go-bd); color: var(--text); }
+  .send:disabled { opacity: 0.45; }
+  .who { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+  .who-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .who-line button { padding: 6px 12px; font-size: 14px; color: var(--dim); }
+  .status { min-height: 22px; margin-top: 10px; font-size: 15px; color: var(--go-fg); }
+  .status.err { color: var(--err); }
+  .banner { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #3a1414; border: 1px solid #a04040; color: var(--err); font-size: 15px; }
+  .sent { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .sent h2 { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .sent-item { padding: 8px 0; border-bottom: 1px solid #2e2a22; font-size: 15px; }
+  .sent-item .f { color: var(--dim); font-size: 13px; }
+  .hidden { display: none !important; }
+  .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header><div class="brand">MiKallbook Notes</div><div class="show" id="show"></div></header>
+<div class="banner hidden" id="banner"></div>
+
+<!-- The show's 4-digit code (in the link from the SM, or typed) -->
+<section id="codeBox" class="hidden">
+  <label for="code">Code from the stage manager</label>
+  <div class="row"><input id="code" inputmode="numeric" maxlength="4" autocomplete="off"><button id="codeGo">Connect</button></div>
+  <div class="hint">The 4-digit code on the SM's MiKallbook (Reports or Link window).</div>
+</section>
+
+<section id="main" class="hidden">
+  <div class="to" id="to"></div>
+
+  <div class="who" id="whoShow">
+    <div class="who-line"><span id="whoText"></span><button id="whoEdit">Change</button></div>
+  </div>
+  <div id="whoForm" class="hidden">
+    <label for="name">Your name</label>
+    <input id="name" maxlength="40" autocomplete="name">
+    <label for="role">Role</label>
+    <select id="role">
+      <option>Director</option><option>Assistant director</option><option>Choreographer</option>
+      <option>Music director</option><option>Producer</option><option>Designer</option><option value="">Other / none</option>
+    </select>
+  </div>
+
+  <label for="field">Note for</label>
+  <select id="field"></select>
+
+  <label for="cue">Cue (if needed)</label>
+  <div class="row"><input id="cue" maxlength="40" autocomplete="off" placeholder="e.g. LX 12"><button id="cueLast" class="hidden"></button></div>
+
+  <label for="note">Note</label>
+  <textarea id="note" maxlength="2000"></textarea>
+  <button class="send" id="send">Send Note</button>
+  <div class="status" id="status"></div>
+
+  <div class="sent hidden" id="sentBox"><h2>Sent from here</h2><div id="sentList"></div></div>
+</section>
+
+<script>
+'use strict';
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var store = {
+    get: function (k) { try { return localStorage.getItem('mcbnotes.' + k) || ''; } catch (_) { return ''; } },
+    set: function (k, v) { try { localStorage.setItem('mcbnotes.' + k, v); } catch (_) {} }
+  };
+  var params = new URLSearchParams(location.search);
+  var code = params.get('code') || store.get('code');
+  var info = null;          // { show, target, fields:[{id,label}], cue }
+  var pollTimer = 0;
+  var sending = false;
+
+  function showCode(msg) {
+    $('main').classList.add('hidden');
+    $('codeBox').classList.remove('hidden');
+    $('code').value = code || '';
+    banner(msg || '');
+  }
+  function banner(msg) {
+    $('banner').textContent = msg;
+    $('banner').classList.toggle('hidden', !msg);
+  }
+
+  function renderWho() {
+    var name = store.get('name'), role = store.get('role');
+    var known = !!name;
+    $('whoShow').classList.toggle('hidden', !known);
+    $('whoForm').classList.toggle('hidden', known);
+    $('whoText').textContent = known ? name + (role ? ' (' + role + ')' : '') : '';
+    $('name').value = name;
+    $('role').value = role;
+  }
+
+  function renderInfo() {
+    $('show').textContent = info.show || '';
+    $('to').innerHTML = '';
+    var b = document.createElement('b');
+    b.textContent = info.target || 'the current report';
+    $('to').append('Notes go to: ', b);
+    var sel = $('field'), keep = sel.value || store.get('field');
+    var sig = JSON.stringify(info.fields);
+    if (sel.dataset.sig !== sig) {
+      sel.dataset.sig = sig;
+      sel.innerHTML = '';
+      info.fields.forEach(function (f) {
+        var o = document.createElement('option');
+        o.value = f.id; o.textContent = f.label;
+        sel.appendChild(o);
+      });
+      if (info.fields.some(function (f) { return f.id === keep; })) sel.value = keep;
+    }
+    var c = $('cueLast');
+    c.classList.toggle('hidden', !info.cue);
+    c.textContent = info.cue ? 'Last: ' + info.cue : '';
+    $('send').disabled = sending || !info.fields.length;
+  }
+
+  function poll() {
+    clearTimeout(pollTimer);
+    fetch('/micallbook/notes/info?code=' + encodeURIComponent(code), { cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 403) { showCode('Wrong code. Check it with the stage manager.'); return null; }
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j) return;
+        info = j;
+        store.set('code', code);
+        banner('');
+        $('codeBox').classList.add('hidden');
+        $('main').classList.remove('hidden');
+        renderInfo();
+        pollTimer = setTimeout(poll, 4000);
+      })
+      .catch(function () {
+        banner('Can’t reach the stage manager’s MiKallbook. Check this device is on the same network; trying again…');
+        pollTimer = setTimeout(poll, 4000);
+      });
+  }
+
+  function addSent(fieldLabel, text) {
+    var d = document.createElement('div');
+    d.className = 'sent-item';
+    var f = document.createElement('div'); f.className = 'f';
+    f.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' · ' + fieldLabel;
+    var t = document.createElement('div'); t.textContent = text;
+    d.append(f, t);
+    $('sentList').prepend(d);
+    $('sentBox').classList.remove('hidden');
+  }
+
+  function send() {
+    if (sending) return;
+    var name = store.get('name') || $('name').value.trim();
+    var role = store.get('name') ? store.get('role') : $('role').value;
+    var text = $('note').value.trim();
+    var st = $('status');
+    st.className = 'status err';
+    if (!name) { st.textContent = 'Type your name first.'; $('name').focus(); return; }
+    if (!text) { st.textContent = 'Type a note.'; $('note').focus(); return; }
+    store.set('name', name); store.set('role', role); renderWho();
+    var field = $('field').value;
+    store.set('field', field);
+    var label = ($('field').selectedOptions[0] || {}).textContent || '';
+    sending = true; $('send').disabled = true;
+    st.className = 'status'; st.textContent = 'Sending…';
+    fetch('/micallbook/notes?code=' + encodeURIComponent(code), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store',
+      body: JSON.stringify({ name: name, role: role, field: field, cue: $('cue').value.trim(), text: text })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, j: j }; });
+    }).then(function (x) {
+      if (x.status === 403) { showCode('Wrong code. Check it with the stage manager.'); return; }
+      if (!x.j.ok) { st.className = 'status err'; st.textContent = x.j.error || 'Not sent. Try again.'; return; }
+      addSent(label, ($('cue').value.trim() ? $('cue').value.trim() + ' · ' : '') + text);
+      $('note').value = ''; $('cue').value = '';
+      st.className = 'status'; st.textContent = 'Sent to ' + (x.j.to || 'the report') + '.';
+    }).catch(function () {
+      st.className = 'status err'; st.textContent = 'Not sent: can’t reach MiKallbook. Your note is still here; try again.';
+    }).then(function () {
+      sending = false;
+      $('send').disabled = !(info && info.fields.length);
+    });
+  }
+
+  $('codeGo').addEventListener('click', function () {
+    var v = $('code').value.replace(/\D/g, '');
+    if (v.length !== 4) { banner('The code is 4 digits.'); return; }
+    code = v; poll();
+  });
+  $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('codeGo').click(); });
+  $('whoEdit').addEventListener('click', function () { store.set('name', ''); renderWho(); $('name').focus(); });
+  $('cueLast').addEventListener('click', function () { if (info && info.cue) $('cue').value = info.cue; });
+  $('send').addEventListener('click', send);
+  $('note').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); } });
+  $('field').addEventListener('change', function () { store.set('field', $('field').value); });
+
+  renderWho();
+  if (/^\d{4}$/.test(code || '')) poll(); else showCode('');
+})();
+</script>
+</body>
+</html>
