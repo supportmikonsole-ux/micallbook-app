@@ -126,6 +126,15 @@ function createMainWindow() {
   win.on('session-end', () => { allowClose = true; releaseWindows(); });
   win.on('closed', () => { clearTimeout(failsafe); if (mainWindow === win) mainWindow = null; });
 
+  // macOS: open in true full screen (hides the Dock and menu bar), same as
+  // MiKonsole. Control-Cmd-F or the green window button leaves full screen.
+  // Windows is unaffected and keeps its existing maximized behaviour.
+  if (process.platform === 'darwin') {
+    win.once('show', () => {
+      if (!win.isDestroyed() && !win.isFullScreen()) win.setFullScreen(true);
+    });
+  }
+
   return win;
 }
 
