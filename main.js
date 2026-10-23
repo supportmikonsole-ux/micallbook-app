@@ -102,34 +102,13 @@ function createMainWindow() {
     try { win.setOpacity(1); } catch (_) {}
     if (!win.isVisible()) win.show();
   };
-  const isMac = process.platform === 'darwin';
   const failsafe = setTimeout(() => {
     console.error('[main] ready-to-show did not fire within 10s; forcing reveal');
     forceReveal();
-    if (isMac && !win.isDestroyed() && !win.isFullScreen()) win.setFullScreen(true);
   }, 10000);
 
   win.once('ready-to-show', () => {
     clearTimeout(failsafe);
-
-    // macOS: open in true full screen (hides the Dock and menu bar).
-    // Control-Cmd-F or the green window button leaves full screen.
-    // The window stays at opacity 0 until the full-screen transition has
-    // finished and the page has laid out at full size, then appears in one
-    // step. No maximize() first: that would add a second visible resize.
-    if (isMac) {
-      let fsFailsafe = null;
-      win.once('enter-full-screen', () => {
-        clearTimeout(fsFailsafe);
-        setTimeout(forceReveal, 150);
-      });
-      fsFailsafe = setTimeout(forceReveal, 3000);   // reveal anyway if the event never comes
-      win.show();
-      win.setFullScreen(true);
-      return;
-    }
-
-    // Windows: unchanged
     win.maximize();
     win.show();
     setTimeout(forceReveal, 250);
