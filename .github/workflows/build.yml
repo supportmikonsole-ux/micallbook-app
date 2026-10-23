@@ -1,0 +1,47 @@
+name: Build installers
+
+on:
+  workflow_dispatch:        # adds a "Run workflow" button on the Actions tab
+  push:
+    tags:
+      - 'v*'                # also runs when you push a tag like v2026.1.1
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false      # if one platform fails, the other still finishes
+      matrix:
+        include:
+          - os: windows-latest
+            script: build:win
+            files: dist/*.exe
+            label: windows
+          - os: macos-latest
+            script: build:mac
+            files: dist/*.dmg
+            label: mac
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installer
+        shell: bash
+        run: npm run ${{ matrix.script }} -- --publish never
+
+      - name: Save installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-${{ matrix.label }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
