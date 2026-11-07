@@ -265,3 +265,42 @@ input, textarea, select, [contenteditable] { user-select: text; }
   .mi-file-name { width: 120px; }
   .mi-file-btn { padding: 6px 6px; }
 }
+
+/* ══ DEPTH LAYER — "Pronounced" raised controls (2026-10-30, ported from MiKonsole) ══════
+   Shared by every Mi app that loads this theme; keep it at the END of this file.
+   Suite buttons sit on lighter panels, so the default is the softer set used on
+   MiKonsole's keypad and header. App stylesheets add their own controls and may
+   override the variables per element (e.g. a full-depth edge on a big GO).
+   The face gradient is background-image !important so it survives `background:`
+   shorthands in hover/state rules. Reusable classes for new buttons:
+     .mk-key  raised button      .mk-chip  lighter raise for small controls
+     .mk-on   shows a .mk-key / .mk-chip as the selected (pressed-in) option        */
+:root {
+  --mk-face:      linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.04) 48%, rgba(0,0,0,0.06) 52%, rgba(0,0,0,0.26) 100%);
+  --mk-face-lite: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 48%, rgba(0,0,0,0.03) 52%, rgba(0,0,0,0.14) 100%);
+  --mk-face-in:   linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(255,255,255,0.03) 100%);
+  --mk-raise:     inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.35), 0 1px 0 rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.30);
+  --mk-raise-h:   inset 0 1px 0 rgba(255,255,255,0.30), inset 0 -1px 0 rgba(0,0,0,0.35), 0 1px 0 rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.30);
+  --mk-lit:       inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.35), 0 1px 0 rgba(0,0,0,0.55);
+  --mk-press:     inset 0 2px 4px rgba(0,0,0,0.60);
+  --mk-sink:      1px;
+}
+.mi-btn, .mi-btn-go, .mi-btn-close, .mi-file-btn, .mk-key {
+  background-image: var(--mk-face) !important; box-shadow: var(--mk-raise); text-shadow: 0 -1px 0 rgba(0,0,0,0.45);
+}
+.mk-chip {
+  --mk-face:    var(--mk-face-lite);
+  --mk-raise:   inset 0 1px 0 rgba(255,255,255,0.16), 0 1px 0 rgba(0,0,0,0.45);
+  --mk-raise-h: inset 0 1px 0 rgba(255,255,255,0.24), 0 1px 0 rgba(0,0,0,0.45);
+  --mk-press:   inset 0 1px 2px rgba(0,0,0,0.50);
+  background-image: var(--mk-face) !important; box-shadow: var(--mk-raise);
+}
+.mi-btn:hover, .mi-btn-go:hover, .mi-btn-close:hover, .mi-file-btn:hover, .mk-key:hover, .mk-chip:hover { box-shadow: var(--mk-raise-h); }
+/* Lit state stays raised and glows */
+.mi-btn-go.flash { box-shadow: var(--mk-lit), 0 0 12px rgba(80,200,150,0.35); }
+/* Pressed: sink and the face flips (replaces the old scale() press); .on / .mk-on sit pressed in */
+.mi-btn:active, .mi-btn-go:active, .mi-btn-close:active, .mi-file-btn:active, .mk-key:active, .mk-chip:active,
+.mi-btn.on, .mk-key.mk-on, .mk-chip.mk-on {
+  background-image: var(--mk-face-in) !important; box-shadow: var(--mk-press); transform: translateY(var(--mk-sink));
+}
+/* ══ end DEPTH LAYER ══ */

@@ -840,3 +840,38 @@ body.edit-mode .edit-hide { display: none; }
 .show-only { display: none !important; }
 body.show-mode .show-only { display: inline-flex !important; }
 #btnFollow.on { background: var(--mi-row-active); border-color: var(--mi-text); color: var(--mi-text); }
+
+/* ══ Depth (2026-10-30): MiKallbook's own controls. Shared buttons get theirs from mi-theme.css ══
+   Left flat on purpose: margin cue tabs/dots on the script page (2D marks, like MiKonsole's MS
+   tools), menu rows, list items, borderless ✕ buttons, colour inputs. */
+/* Big calling GO: full-depth edge (2px skirt, 2px sink); step colours unchanged */
+.go-big {
+  --mk-raise:   inset 0 1px 0 rgba(255,255,255,0.26), inset 0 -1px 0 rgba(0,0,0,0.40), 0 2px 0 #0b0b0b, 0 3px 6px rgba(0,0,0,0.55);
+  --mk-raise-h: inset 0 1px 0 rgba(255,255,255,0.34), inset 0 -1px 0 rgba(0,0,0,0.40), 0 2px 0 #0b0b0b, 0 3px 6px rgba(0,0,0,0.55);
+  --mk-lit:     inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(0,0,0,0.40), 0 2px 0 #0b0b0b;
+  --mk-sink:    2px;
+}
+.go-big.flash-step       { box-shadow: var(--mk-lit), 0 0 22px rgba(240,200,80,0.55); }
+.mi-btn-go.drive-fail    { box-shadow: var(--mk-lit), 0 0 14px rgba(255,80,80,0.40); }
+/* Edit/Show switch: chosen half pressed in without shifting, so the halves stay aligned */
+.seg-btn.on, .seg-btn:active { transform: none; }
+/* Run-order GO buttons, picker departments, live-missing pill: raised */
+.ro-go, .pk-dept, .live-miss {
+  background-image: var(--mk-face) !important; box-shadow: var(--mk-raise); text-shadow: 0 -1px 0 rgba(0,0,0,0.45);
+}
+.ro-go:hover, .pk-dept:hover, .live-miss:hover { box-shadow: var(--mk-raise-h); }
+.ro-go.standby { box-shadow: var(--mk-lit), 0 0 10px rgba(255,224,112,0.25); }
+/* Small controls: lighter raise (panel arrows / delete, timing log) */
+.dp-btn, .tm-log {
+  --mk-face:    var(--mk-face-lite);
+  --mk-raise:   inset 0 1px 0 rgba(255,255,255,0.16), 0 1px 0 rgba(0,0,0,0.45);
+  --mk-raise-h: inset 0 1px 0 rgba(255,255,255,0.24), 0 1px 0 rgba(0,0,0,0.45);
+  --mk-press:   inset 0 1px 2px rgba(0,0,0,0.50);
+  background-image: var(--mk-face) !important; box-shadow: var(--mk-raise);
+}
+.dp-btn:hover:not(:disabled), .tm-log:hover { box-shadow: var(--mk-raise-h); }
+/* Pressed, and selected options sit pressed in */
+.ro-go:active, .pk-dept:active, .live-miss:active, .dp-btn:active:not(:disabled), .tm-log:active,
+.ro-go.sel, .pk-dept.on {
+  background-image: var(--mk-face-in) !important; box-shadow: var(--mk-press); transform: translateY(var(--mk-sink));
+}
