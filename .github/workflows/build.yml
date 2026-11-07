@@ -45,3 +45,4 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.label }}
           path: ${{ matrix.files }}
           if-no-files-found: error
+          retention-days: 7
