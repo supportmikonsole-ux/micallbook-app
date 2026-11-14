@@ -256,11 +256,21 @@ function roRefresh() {
   } else if (lb) lb.remove();
 }
 
-// Keep the standby GO's item in view while calling
+// Show mode: the standby item stays pinned at the top of the list and called
+// items scroll up out of sight (the scroll bar is then for looking back).
+// The list scrolls itself; scrollIntoView would also shift the page around it.
+// Room is added under the last item so it can reach the top too.
 function roFollow(smooth) {
   if (!isRO() || !(typeof isCalling === 'function' && isCalling())) return;
-  const row = document.querySelector('#roView .ro-item.standby');
-  if (row) row.scrollIntoView({ block: 'center', behavior: smooth ? 'smooth' : 'auto' });
+  const list = document.getElementById('roList');
+  const row = list && list.querySelector('.ro-item.standby');
+  if (!row) return;
+  const items = list.querySelectorAll('.ro-item');
+  const last = items[items.length - 1];
+  const padTop = parseFloat(getComputedStyle(list).paddingTop) || 0;
+  list.style.paddingBottom = Math.max(30, list.clientHeight - last.offsetHeight - padTop) + 'px';
+  const top = list.scrollTop + row.getBoundingClientRect().top - list.getBoundingClientRect().top - padTop;
+  list.scrollTo({ top: Math.max(0, top), behavior: smooth ? 'smooth' : 'auto' });
 }
 function roScrollToGo(id) {
   const b = document.querySelector(`#roView [data-go="${id}"]`);

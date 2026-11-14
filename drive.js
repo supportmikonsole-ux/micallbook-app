@@ -30,11 +30,11 @@
    Uses app.js / marks.js / calling.js / cuelists.js / link.js globals.
    ════════════════════════════════════════════════════════════════════ */
 
-const DRIVE_KEY = 'micallbook.drive';
+const DRIVE_KEY = 'micallbook.drive';     // no longer read: DRIVE starts off every time (Mike, 2026-11-14)
 const SEND_TIMEOUT_MS = 1500;
 
 let driveArmed = false;
-try { driveArmed = localStorage.getItem(DRIVE_KEY) === '1'; } catch (_) {}
+try { localStorage.removeItem(DRIVE_KEY); } catch (_) {}   // clear what older versions remembered
 let lastMicueStandby = null;      // what MiKue's standby was last set to
 // GO points whose lighting cue really changed MiKonsole (sent, or fired by
 // MiKue for a combo cue): only those get MiKonsole's Back
@@ -244,8 +244,8 @@ async function enterShowMode() {
   }
   const ans = await ask(apps.length ? `Drive ${which}?` : 'Start the show', detail, apps.length ? [
     { label: 'Cancel', value: 'cancel' },
-    { label: 'Call Only', value: 'call' },
-    { label: 'Drive', value: 'drive', cls: 'mi-btn-go' }
+    { label: 'Drive', value: 'drive' },
+    { label: 'Call Only', value: 'call', cls: 'mi-btn-go' }     // the default (Enter): DRIVE is off unless chosen
   ] : [
     { label: 'Cancel', value: 'cancel' },
     { label: 'Show Mode', value: 'show', cls: 'mi-btn-go' }
@@ -258,7 +258,6 @@ async function enterShowMode() {
 
 function setDrive(on) {
   driveArmed = !!on;
-  try { localStorage.setItem(DRIVE_KEY, driveArmed ? '1' : '0'); } catch (_) {}
   lastMicueStandby = null;
   renderDrive();
   if (driveArmed) syncMicueStandby();

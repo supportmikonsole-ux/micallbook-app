@@ -34,6 +34,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('micallbook', {
   openShow:   ()               => ipcRenderer.invoke('show:open'),
+  recents:    ()               => ipcRenderer.invoke('show:recents'),     // start screen: [{ path, name, kind, folder }]
+  openPath:   (p)              => ipcRenderer.invoke('show:openPath', p),  // one of them
   saveShow:   (show, showPath) => ipcRenderer.invoke('show:save', show, showPath || null),
   pickScript: ()               => ipcRenderer.invoke('script:pick'),
   readScript: (p)              => ipcRenderer.invoke('script:read', p),
@@ -81,6 +83,7 @@ contextBridge.exposeInMainWorld('micallbook', {
   setTitle:   (t)              => ipcRenderer.send('app:title', String(t || 'MiKallbook')),
   copyText:   (t)              => ipcRenderer.send('app:copy', String(t || '')),
   openManual: ()               => ipcRenderer.send('app:manual'),
+  version:    ()               => ipcRenderer.invoke('app:version'),   // About: app.getVersion()
   quit:       ()               => ipcRenderer.send('app:quit'),
   onCloseRequest: (cb) => {
     if (typeof cb !== 'function') return;

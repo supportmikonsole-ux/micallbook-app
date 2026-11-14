@@ -170,6 +170,19 @@ h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;
   <li>For Link Computers and Notes from Phones: the computers and phones on the same network</li>
   <li>For the MiKast Link: MiKast from 2026-10-20 or later, and its production where this computer can open it (the same computer, as a rule)</li>
 </ul>
+<h2>Installing on Windows</h2>
+<ul>
+  <li>Run <em>MiKallbook Setup</em> and follow the steps. It adds MiKallbook to the Start menu and the desktop.</li>
+  <li>The first time, Windows may show <strong>Windows protected your PC</strong>. MiKallbook is free and isn't signed with a paid certificate, so Windows doesn't know it yet. Click <strong>More info</strong>, then <strong>Run anyway</strong>. This only happens once.</li>
+</ul>
+<h2>Installing on a Mac</h2>
+<ul>
+  <li>Open the <em>.dmg</em> and drag MiKallbook into <strong>Applications</strong>.</li>
+  <li>The first time you open it, macOS says it can't check MiKallbook for malware and offers only <strong>Done</strong> or <strong>Move to Trash</strong>. Click <strong>Done</strong>.</li>
+  <li>Open <strong>System Settings › Privacy &amp; Security</strong>, scroll down to the message about MiKallbook and click <strong>Open Anyway</strong>, then <strong>Open</strong> (your Mac may ask for its password). From then on it opens normally.</li>
+</ul>
+<h2>Updating</h2>
+<p>Install the new version over the old one. Your show folders are kept where you saved them and aren't touched. Use the same version of MiKallbook on every computer you work on.</p>
 <h2>Quick Start</h2>
 <ul>
   <li>Open <strong>MiKallbook</strong>. It opens in <strong>Edit</strong> mode with an empty show.</li>
@@ -189,7 +202,7 @@ h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;
 <tr><td>SHOW</td><td>The show name, <strong>New</strong>, <strong>Open</strong>, <strong>Save</strong>, <strong>Save As</strong>, and the file status: <em>unsaved</em>, <em>unsaved changes</em>, or <em>saved</em>. See <a href="#files">4. Show Files</a>.</td></tr>
 <tr><td>Edit / Show / Operator</td><td>The three modes. See <a href="#modes">3. Modes</a>. In Operator mode, the menu beside them picks the department.</td></tr>
 <tr><td>Sharing · n / Linked</td><td>Shown only while this computer is sharing or following. Click it to open the Link window. See <a href="#link">17. Link Computers</a>.</td></tr>
-<tr><td>Utilities ▾</td><td>Reports, Notes from Phones, Cue Sheets, Departments, Link Computers, Booth View, MiKast Link, and User Manual. Each item shows what it is doing now (for example <em>sharing · 2 following</em>). Cue Sheets and Departments are only available in Edit mode.</td></tr>
+<tr><td>Utilities ▾</td><td>Reports, Notes from Phones, Cue Sheets, Departments, Link Computers, Booth View, MiKast Link, User Manual, and About (the version). Each item shows what it is doing now (for example <em>sharing · 2 following</em>). Cue Sheets and Departments are only available in Edit mode.</td></tr>
 <tr><td>Exit</td><td>Closes MiKallbook. It asks first, and offers to save if there are unsaved changes.</td></tr>
 </tbody></table>
 <h2>Script Toolbar</h2>
@@ -199,7 +212,7 @@ h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;
 <tr><td>− ↔ ↕ +</td><td>Zoom out, fit the page width, fit a whole page, zoom in. Ctrl + mouse wheel also zooms.</td></tr>
 <tr><td>1 Page / 2 Pages</td><td>One page at a time, or two side by side</td></tr>
 <tr><td>Paper / Dark, Contrast</td><td>Page colors. See <a href="#script">5. The Script</a>.</td></tr>
-<tr><td>Follow</td><td>Show mode only: whether the script scrolls to keep the next call in view (on by default). See <a href="#calling">9. Calling the Show</a>.</td></tr>
+<tr><td>Follow</td><td>Show mode only: whether the script scrolls to keep the next call in view. Follow is on every time MiKallbook starts; turning it off lasts until you close the app. In a concert running order, the next item stays at the top of the list and called items scroll up out of sight. See <a href="#calling">9. Calling the Show</a>.</td></tr>
 </tbody></table>
 <h2>Calling Column</h2>
 <table class="ref-table"><thead><tr><th>Item</th><th>What it does</th></tr></thead><tbody>
@@ -240,7 +253,7 @@ h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;
   <li>New, Open, and Exit ask <em>Save changes?</em> when there are unsaved changes</li>
   <li>If the script PDF can't be found when a show opens, the page area says so. Click <strong>Locate PDF…</strong> to point MiKallbook at it.</li>
   <li>Exit with a session running asks whether to <strong>End Session</strong> or <strong>Leave Running</strong>. Exit while other computers are following asks first.</li>
-  <li>Some settings are kept on this computer rather than in the show: Paper / Dark, Follow, contrast, zoom, 1 or 2 pages, the Operator department, DRIVE, Booth View's place and contents, and the Link address and code</li>
+  <li>Some settings are kept on this computer rather than in the show: Paper / Dark, contrast, zoom, 1 or 2 pages, the Operator department, Booth View's place and contents, and the Link address and code</li>
 </ul>
 <h2>Older Shows (.micallbook)</h2>
 <p>Shows made before MiKallbook was renamed have the extension <code>.micallbook</code>. MiKallbook opens them. The show opens marked as having unsaved changes, and the first save writes <code>&lt;Name&gt;.mikallbook</code> in the same folder, leaving the old file as it was.</p>
@@ -384,8 +397,8 @@ h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;
 <p>With <strong>DRIVE</strong> on, calling GO in MiKallbook fires the GO point's cues in MiKonsole and MiKue at the same moment, so nobody presses GO in those apps.</p>
 <h2>Turning It On</h2>
 <ul>
-  <li>Entering Show mode at the start of a run asks <em>Drive MiKonsole and MiKue?</em> (naming only the apps this show's departments are linked to): <strong>Drive</strong> (Enter), <strong>Call Only</strong>, or <strong>Cancel</strong> (Esc)</li>
-  <li>The <strong>DRIVE</strong> button next to Back changes it during the show (remembered on this computer)</li>
+  <li>Entering Show mode at the start of a run asks <em>Drive MiKonsole and MiKue?</em> (naming only the apps this show's departments are linked to): <strong>Call Only</strong> (Enter), <strong>Drive</strong>, or <strong>Cancel</strong> (Esc)</li>
+  <li>The <strong>DRIVE</strong> button next to Back changes it during the show. DRIVE is always off when MiKallbook starts.</li>
   <li>With DRIVE on, the Show mode bar turns red: <em>GO DRIVES MiKonsole + MiKue</em>. With DRIVE off it is amber: <em>DRIVE OFF · GO doesn't fire MiKonsole + MiKue</em>.</li>
 </ul>
 <h2>What Happens</h2>
@@ -623,7 +636,7 @@ h1 .li{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9em;
   </div>
 </div>
 
-<div class="manual-footer">MiKallbook &middot; All rights reserved &middot; 2026.1.0 &middot; Manual v2</div>
+<div class="manual-footer">MiKallbook &middot; All rights reserved &middot; Version 2026.01 &middot; Manual v2</div>
 
 <script>
 const sections = document.querySelectorAll('section[id]');

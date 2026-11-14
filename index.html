@@ -100,6 +100,7 @@
             <button class="menu-item" role="menuitem" id="miMikast"><span>MiKast Link</span><span class="menu-hint" id="miMikastHint">calls → sessions</span></button>
             <div class="menu-sep"></div>
             <button class="menu-item" role="menuitem" id="miManual"><span>User Manual</span><span class="menu-hint">F1</span></button>
+            <button class="menu-item" role="menuitem" id="miAbout"><span>About MiKallbook</span><span class="menu-hint">version</span></button>
             <div class="menu-note edit-hide">Cue Sheets and Departments: in Edit mode</div>
           </div>
         </div>
@@ -333,6 +334,10 @@
 <datalist id="dl-mikonsole"></datalist>
 <datalist id="dl-micue"></datalist>
 
+<!-- Start screen (2026.01 step 2): shown when the app opens, and for New -->
+<div class="start-overlay" id="startOverlay">
+  <div class="start-box" id="startBody"></div>
+</div>
 <div id="toasts"></div>
 
 <script src="text-doc.js"></script>

@@ -16,7 +16,7 @@
  * The live link sends only the calling position and cue numbers, never the script.
  */
 
-const { app, BrowserWindow, ipcMain, dialog, screen, shell, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, screen, shell, clipboard, Menu } = require('electron');
 const path = require('path');
 const fs   = require('fs');
 
@@ -186,6 +186,32 @@ function showsDirOf(showPath) {
 }
 
 // ── IPC: show files ───────────────────────────────────────────────────────
+// ── Recent files, for the start screen (2026.01 step 2; the same as MiStage) ──
+const RECENT_MAX = 8;
+function recentKind(show) { return show && show.document && show.document.type === 'runningOrder' ? 'concert' : 'script'; }
+function recentList() {
+  const r = readSettings().recents;
+  return Array.isArray(r) ? r.filter(x => x && typeof x.path === 'string' && x.path) : [];
+}
+function addRecent(p, data) {
+  const s = readSettings();
+  const key = q => path.resolve(q).toLowerCase();
+  s.recents = [{ path: p, name: path.basename(p, path.extname(p)), kind: recentKind(data) }]
+    .concat(recentList().filter(x => key(x.path) !== key(p)))
+    .slice(0, RECENT_MAX);
+  writeSettings(s);
+}
+// The start screen's list: files that are still there
+ipcMain.handle('show:recents', () => recentList()
+  .filter(x => { try { return fs.statSync(x.path).isFile(); } catch (_) { return false; } })
+  .map(x => ({ path: x.path, name: String(x.name || path.basename(x.path, path.extname(x.path))), kind: String(x.kind || recentKind()), folder: path.dirname(x.path) })));
+// Open one of them. Only paths on the recent list, so the page can't ask for any file.
+ipcMain.handle('show:openPath', (_e, p) => {
+  p = String(p || '');
+  if (!recentList().some(x => x.path === p)) return { error: 'That file is not on the recent list.' };
+  return readShowFile(p);
+});
+
 ipcMain.handle('show:open', async () => {
   const r = await dialog.showOpenDialog(mainWindow, {
     title: 'Open Show',
@@ -195,7 +221,12 @@ ipcMain.handle('show:open', async () => {
   });
   if (r.canceled || !r.filePaths.length) return { canceled: true };
 
-  let showPath = r.filePaths[0];
+  return readShowFile(r.filePaths[0]);
+});
+
+// Read a show file (Open, and the start screen's Recent list)
+function readShowFile(filePath) {
+  let showPath = filePath;
   const showDir  = path.dirname(showPath);
   // An old .micallbook show is read as it is; showPath becomes <Name>.mikallbook beside it,
   // so the first save writes the new file and the old one is never touched.
@@ -219,6 +250,7 @@ ipcMain.handle('show:open', async () => {
   try {
     show = JSON.parse(fs.readFileSync(showPath, 'utf8'));
   } catch (err) {
+    if (err && err.code === 'ENOENT') return { error: `"${path.basename(showPath)}" is no longer there. It may have been moved or deleted.` };
     return { error: 'Could not read show file: ' + err.message };
   }
   if (!show || show.format !== 'micallbook' || !show.document || typeof show.document !== 'object') {
@@ -232,9 +264,10 @@ ipcMain.handle('show:open', async () => {
     pdf.path = p;
     if (!fs.existsSync(p)) missing.push(p);
   }
+  if (!convertedPath) addRecent(showPath, show);
   if (convertedPath) return { show, showPath: convertedPath, missing, converted: true };
   return { show, showPath, missing };
-});
+}
 
 ipcMain.handle('show:save', async (_e, show, existingPath) => {
   let showPath = existingPath;
@@ -313,6 +346,7 @@ ipcMain.handle('show:save', async (_e, show, existingPath) => {
   } catch (err) {
     return { error: 'Could not write the show file: ' + err.message };
   }
+  addRecent(showPath, out);
   return { showPath, pathMap, missing };
 });
 
@@ -585,6 +619,8 @@ function releaseWindows() {
 // One window, reused if already open. Exit closes it with everything else.
 const MANUAL_FILE = 'MiKallbook_Manual_v2.html';
 let manualWindow = null;
+ipcMain.handle('app:version', () => app.getVersion());   // About (row 8)
+
 ipcMain.on('app:manual', () => {
   if (manualWindow && !manualWindow.isDestroyed()) {
     if (manualWindow.isMinimized()) manualWindow.restore();
@@ -635,8 +671,33 @@ if (!gotLock) {
   });
 }
 
+// ── App menu (2026.01, row 12/13) ───────────────────────────────────────
+// Windows / Linux: no menu at all. A hidden menu bar still answered its
+// shortcuts: Ctrl+R reloaded the page without asking about unsaved changes,
+// Ctrl+Shift+I opened Developer Tools (found by Mike in MiKast, 2026-11-14).
+// Copy, paste, cut, select all and undo in text boxes work without a menu.
+// Mac: the menu belongs to the app and Cmd+C / Cmd+V need its Edit menu, so
+// it is Electron's default without View and Help, the same as MiKonsole's.
+function installAppMenu() {
+  if (process.platform !== 'darwin') { Menu.setApplicationMenu(null); return; }
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    { role: 'appMenu' },
+    { role: 'fileMenu' },
+    { role: 'editMenu' },
+    { label: 'Window', role: 'window', submenu: [
+      { role: 'minimize' },
+      { role: 'zoom' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' },
+      { type: 'separator' },
+      { role: 'front' }
+    ] }
+  ]));
+}
+
 app.whenReady().then(() => {
   if (!gotLock) return;
+  installAppMenu();
   mainWindow = createMainWindow();
 
   app.on('activate', () => {

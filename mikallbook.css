@@ -4,23 +4,10 @@
    Header, modal and toast rules match MiKue's mikue.css.
    ════════════════════════════════════════════════════════════════════ */
 
-#frame { height: 100vh; padding: 20px 18px; display: flex; }
-#console { flex: 1; display: flex; min-width: 0; min-height: 0; }
-#consoleInner { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-
 /* ── Header extras (same as MiKue) ───────────────────────────────────── */
 /* File area (left, next to the brand): mi-theme.css .mi-file */
-.hdr-sep { width: 1px; height: 26px; background: #505040; margin: 0 6px; }
-.seg { display: inline-flex; }
-.seg-btn { border-radius: 0; padding: 9px 12px; }
-.seg-btn:first-child { border-radius: 5px 0 0 5px; }
-.seg-btn:last-child  { border-radius: 0 5px 5px 0; border-left: none; }
-.seg-btn.on { background: var(--mi-row-active); border-color: var(--mi-text); color: var(--mi-text); }
 #btnShowMode.on { background: #5a4a10; border-color: #e0c040; color: #ffe880; }
 
-.mi-header { gap: 12px; }
-.mi-brand { min-width: 0; flex-shrink: 0; }
-.mi-status-bar { flex-wrap: nowrap; flex-shrink: 0; }
 @media (max-width: 1560px) {
   .mi-status-bar { gap: 4px; }
   .mi-status-bar .mi-btn { padding: 8px 9px; font-size: 13px; letter-spacing: 1px; }
@@ -43,7 +30,7 @@
 #calling { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 
 .standby {
-  background: rgba(0,0,0,0.25); border: 1px solid #4a4436; border-radius: 10px;
+  background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius);
   padding: 10px 14px 12px;
 }
 .standby-main { display: flex; align-items: center; gap: 14px; margin-top: 4px; min-height: 64px; }
@@ -73,7 +60,7 @@ body.drive-off .show-lock { background: #3a2a08; border-color: #e0a030; color: #
 .hint { font-family: var(--mi-font-mono); font-size: 10px; color: var(--mi-text-dim); letter-spacing: 0.5px; text-align: center; }
 
 .section-head { display: flex; justify-content: space-between; padding: 0 2px 4px; border-bottom: 1px solid #4a4436; }
-.upcoming { flex: 1; display: flex; flex-direction: column; min-height: 120px; }
+.upcoming { flex: 1; display: flex; flex-direction: column; min-height: 120px; background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 8px 10px 4px; }
 .upcoming-list { flex: 1; padding-top: 6px; }
 .upcoming-empty { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-muted); text-align: center; padding: 18px 0; }
 
@@ -94,7 +81,6 @@ body.show-mode .show-lock { display: block; }
 .script-bar .mi-btn { padding: 7px 9px; font-size: 13px; letter-spacing: 1.5px; white-space: nowrap; }
 .script-bar .sb-icon { padding: 7px 9px; min-width: 32px; }
 .tb-sep  { width: 1px; height: 24px; background: #505040; margin: 0 4px; flex-shrink: 0; }
-.tb-fill { flex: 1; }
 .page-input { width: 52px; text-align: center; padding: 6px 4px; }
 .zoom-pct { font-family: var(--mi-font-mono); font-size: 12px; color: var(--mi-text-dim); min-width: 44px; text-align: center; }
 .contrast-wrap { display: none; align-items: center; gap: 6px; margin-right: 6px; }
@@ -107,7 +93,7 @@ body.show-mode .edit-only { display: none !important; }
 /* Scrolling page area */
 .script-view {
   flex: 1; min-height: 0; position: relative; overflow: auto;
-  background: var(--mi-well); border: 1px solid #3a3428; border-radius: 10px;
+  background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius);
 }
 .script-view::-webkit-scrollbar { width: 10px; height: 10px; }
 .script-view::-webkit-scrollbar-track { background: #1c1a16; }
@@ -372,7 +358,7 @@ body.operator-mode #operator {
 
 .op-main {
   display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 16px 20px;
-  border: 2px solid #3a3428; border-radius: 14px; background: rgba(0,0,0,0.25);
+  background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: 14px;
   transition: background 0.15s, border-color 0.15s;
 }
 .op-state { font-family: var(--mi-font-brand); font-size: 30px; letter-spacing: 6px; color: var(--mi-text-muted); line-height: 1; }
@@ -398,7 +384,7 @@ body.operator-mode #operator {
 
 .op-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
 .op-next { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
-.op-card { background: rgba(0,0,0,0.25); border: 1px solid #3a3428; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.op-card { background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
 .op-card-head { display: flex; gap: 14px; align-items: baseline; font-family: var(--mi-font-brand); font-size: 32px; letter-spacing: 1px; line-height: 1; }
 .op-card-meta { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-dim); margin-left: auto; }
 .op-card-note { font-family: var(--mi-font-ui); font-size: 15px; color: #e8dcb8; }
@@ -503,32 +489,9 @@ body.operator-mode #operator {
 .text-foot .mi-btn { padding: 7px 12px; font-size: 13px; }
 .text-keys { font-family: var(--mi-font-mono); font-size: 10px; color: var(--mi-text-muted); margin-right: 6px; }
 
-/* ── Modal (same as MiKue) ───────────────────────────────────────────── */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--mi-panel); border: 1px solid #5a5040; border-radius: 14px;
-  width: 520px; max-width: 92vw; padding: 22px 22px 18px; box-shadow: 0 24px 80px rgba(0,0,0,0.7);
-}
-.modal-msg { font-family: var(--mi-font-ui); font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(--mi-text); }
-.modal-detail { font-family: var(--mi-font-mono); font-size: 12px; color: #d8ccb0; margin-top: 10px; line-height: 1.6; white-space: pre-wrap; max-height: 50vh; overflow: auto; }
-.modal-btns { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-
-/* ── Toasts (same as MiKue) ──────────────────────────────────────────── */
-#toasts { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 2000; pointer-events: none; }
-.toast {
-  font-family: var(--mi-font-ui); font-size: 15px; font-weight: 500; letter-spacing: 0.5px;
-  padding: 10px 18px; border-radius: 8px; background: #2a2620; border: 1px solid #6a5a38; color: var(--mi-text);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6); max-width: 70vw;
-  animation: toastIn 0.18s ease-out;
-}
-.toast.err { border-color: #a04040; background: #2a1616; color: #ffd8d8; }
-.toast.ok  { border-color: #3f8a64; }
-@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
 /* ── Show clock: timing box and Session Log (timing.js) ─────────────── */
 .timing {
-  background: rgba(0,0,0,0.25); border: 1px solid #4a4436; border-radius: 10px; padding: 8px 12px 10px;
+  background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 8px 12px 10px;
   display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
 }
 .tm-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -551,7 +514,7 @@ body.operator-mode #operator {
 .timing.run .tm-state { color: #a0f0d0; }
 .timing.int .tm-state { color: #ffe880; }
 .timing.done .tm-state { color: var(--mi-text-muted); }
-.timing.hold { border-color: #e05050; background: rgba(90,20,20,0.35); }
+.timing.hold { border-color: #e05050; background: #3a1a1a; }   /* solid, on the dark section (step 3) */
 .timing.hold .tm-state, .timing.hold .tm-elapsed { color: #ff9a9a; animation: tmPulse 1s ease-in-out infinite; }
 @keyframes tmPulse { 50% { opacity: 0.55; } }
 .tm-sum { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-dim); line-height: 1.4; }
@@ -676,31 +639,15 @@ body.operator-mode #operator {
 
 /* ── Header: Utilities menu and the Link status pill ─────────────────── */
 .link-pill.off { display: none; }
-.mi-menu { position: relative; }
-.menu-caret { font-size: 11px; letter-spacing: 0; opacity: 0.8; }
-.mi-menu.open #btnUtil { background: var(--mi-row-active); border-color: var(--mi-gold-line); }
-.menu-list {
-  display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 800; min-width: 270px;
-  background: var(--mi-panel); border: 1px solid #5a5040; border-radius: 10px; padding: 6px;
-  box-shadow: 0 16px 50px rgba(0,0,0,0.65);
-}
-.mi-menu.open .menu-list { display: flex; flex-direction: column; }
-.menu-item {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 16px; width: 100%;
-  padding: 9px 12px; border: 1px solid transparent; border-radius: 6px; background: none; cursor: pointer; text-align: left;
-  font-family: var(--mi-font-ui); font-size: 16px; font-weight: 600; letter-spacing: 0.5px; color: var(--mi-text);
-}
-.menu-item:hover, .menu-item:focus-visible { background: var(--mi-row-active); border-color: var(--mi-gold-line); outline: none; }
+.menu-list { min-width: 270px; }   /* wider/narrower than the shared menu */
 .menu-item.on { color: #ffe880; }
 .menu-item.hidden { display: none; }
-.menu-hint { font-family: var(--mi-font-mono); font-size: 11px; font-weight: 400; letter-spacing: 0; color: var(--mi-text-dim); white-space: nowrap; }
-.menu-sep { height: 1px; background: #4a4436; margin: 5px 4px; }
 .menu-note { font-family: var(--mi-font-ui); font-size: 12px; color: var(--mi-text-muted); padding: 6px 12px 2px; }
 body.edit-mode .edit-hide { display: none; }
 
 /* ── Concert running order (runorder.js) ─────────────────────────────── */
 .ro-view { display: none; }
-#scriptWrap.ro .ro-view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#scriptWrap.ro .ro-view { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 10px 6px 0 12px; }
 #scriptWrap.ro #scriptView { display: none; }
 #scriptWrap.ro #contrastWrap, #scriptWrap.ro .script-bar .seg:has(#btnPaper) { display: none; }
 .ro-head { display: flex; align-items: center; gap: 10px; padding: 2px 4px 10px; border-bottom: 1px solid #4a4436; }
@@ -853,8 +800,6 @@ body.show-mode .show-only { display: inline-flex !important; }
 }
 .go-big.flash-step       { box-shadow: var(--mk-lit), 0 0 22px rgba(240,200,80,0.55); }
 .mi-btn-go.drive-fail    { box-shadow: var(--mk-lit), 0 0 14px rgba(255,80,80,0.40); }
-/* Edit/Show switch: chosen half pressed in without shifting, so the halves stay aligned */
-.seg-btn.on, .seg-btn:active { transform: none; }
 /* Run-order GO buttons, picker departments, live-missing pill: raised */
 .ro-go, .pk-dept, .live-miss {
   background-image: var(--mk-face) !important; box-shadow: var(--mk-raise); text-shadow: 0 -1px 0 rgba(0,0,0,0.45);

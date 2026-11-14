@@ -511,6 +511,7 @@ async function pickPdfInto() {
 const PREF_KEY = 'micallbook.view';
 let viewPrefs = { dark: false, contrast: 1, spread: false, zoom: 'fit', follow: true };   // follow: Show mode scrolls the script
 try { Object.assign(viewPrefs, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch (_) {}
+viewPrefs.follow = true;   // Follow always starts on (Mike, 2026-11-14); turning it off lasts until the app closes
 function saveViewPrefs() {
   try { localStorage.setItem(PREF_KEY, JSON.stringify(viewPrefs)); } catch (_) {}
 }
@@ -642,8 +643,13 @@ async function saveShow(saveAs) {
   return true;
 }
 
-async function newShowCmd() {
-  if ((await askToSave()) === 'cancel') return;
+// New asks first, on the start screen (2026.01 step 2)
+function newShowCmd() { showStart(true); }
+
+// The start screen's New
+async function startNewShow() {
+  if ((await askToSave()) === 'cancel') return false;
+  hideStart();
   show = newShow();
   showPath = null;
   dirty = false;
@@ -659,8 +665,20 @@ async function openShowCmd() {
   if ((await askToSave()) === 'cancel') return;
   let r;
   try { r = await bridge.openShow(); } catch (err) { toast('Open failed: ' + cleanErr(err), 'err'); return; }
+  await loadOpenedShow(r);
+}
+// A file from the start screen's Recent list
+async function openRecent(p) {
+  if ((await askToSave()) === 'cancel') return;
+  let r;
+  try { r = await bridge.openPath(p); } catch (err) { toast('Open failed: ' + cleanErr(err), 'err'); return; }
+  if (r && r.error) renderStart();                    // it may have gone: list again
+  await loadOpenedShow(r);
+}
+async function loadOpenedShow(r) {
   if (!r || r.canceled) return;
   if (r.error) { toast(r.error, 'err'); return; }
+  hideStart();
 
   show = normalizeShow(r.show, r.showPath);
   showPath = r.showPath;
@@ -852,6 +870,20 @@ document.addEventListener('pointerdown', e => { if (utilMenuOpen() && !document.
 document.getElementById('miLink').addEventListener('click', () => openLinkDialog());
 document.getElementById('miBooth').addEventListener('click', () => toggleBooth());
 document.getElementById('miManual').addEventListener('click', () => bridge.openManual());
+document.getElementById('miAbout').addEventListener('click', showAbout);
+
+// ── About (2026.01 step 2, row 8): name, version from package.json, who made it ──
+const ABOUT = { name: 'MiKallbook', what: 'Prompt book', line: 'The stage manager’s script, with every cue on it.' };
+function fmtVersion(v) {      // package.json 2026.1.0 -> 2026.01 (a patch shows: 2026.01.2)
+  const m = /^(\d{4})\.(\d+)\.(\d+)/.exec(String(v || ''));
+  return m ? `${m[1]}.${m[2].padStart(2, '0')}${m[3] !== '0' ? '.' + m[3] : ''}` : String(v || '');
+}
+async function showAbout() {
+  let v = '';
+  try { v = await bridge.version(); } catch (_) {}
+  await ask(ABOUT.name, `${ABOUT.what}: ${ABOUT.line}\nVersion ${fmtVersion(v) || '?'}\n\nPart of MiKollection. Free to use.\n© 2026 Michael A. Pierson. All rights reserved.`,
+    [{ label: 'OK', value: true, cls: 'mi-btn-go' }], true);
+}
 
 function isField(el) {
   if (!el) return false;
@@ -865,6 +897,7 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') { e.preventDefault(); closeModal(modalCancel); }
     return;
   }
+  if (startOpen()) { startKeydown(e); return; }   // start screen: F1, Ctrl+O, Esc
   if (utilMenuOpen()) {
     setUtilMenu(false);                       // any key closes the menu; Esc does nothing more
     if (e.key === 'Escape') { e.preventDefault(); return; }
@@ -933,3 +966,70 @@ trackScriptBar();
 applyViewPrefs();
 setMode('edit');
 renderAll();
+
+// ── Start screen (2026.01 step 2: the same as MiStage and MiKostume) ──────
+// Shown when MiKallbook opens, and for New. When MiKallbook opens it can't be
+// closed: start a new show, open one, or pick a recent file.
+const startOverlay = document.getElementById('startOverlay');
+const startBody = document.getElementById('startBody');
+let startCanClose = false;
+function startOpen() { return startOverlay.classList.contains('open'); }
+function hideStart() { startOverlay.classList.remove('open'); }
+function showStart(canClose) {
+  startCanClose = !!canClose;
+  startOverlay.classList.add('open');
+  renderStart();
+}
+const START_ICONS = {
+  script: '<path d="M8 12 Q16 9 24 13 V38 Q16 35 8 37 Z"/><path d="M24 13 Q32 9 40 12 V37 Q32 35 24 38"/><path d="M12 19 H20 M12 24 H19 M12 29 H20" class="dim"/><rect x="31" y="20" width="8" height="6" rx="1" class="f"/>',
+  concert: '<path d="M11 9 H37 V29 H11 Z"/><path d="M24 29 V41 M16 41 H32"/><path d="M16 15 H32 M16 20 H32 M16 25 H27" class="dim"/>',
+  follow: '<rect x="4" y="12" width="17" height="13" rx="1.5"/><rect x="27" y="12" width="17" height="13" rx="1.5"/><path d="M12.5 25 V30 M35.5 25 V30 M8 30 H17 M31 30 H40"/><path d="M21 18.5 H27" stroke-dasharray="2 2"/><path d="M24 34 L24 40 M21 37 L24 40 L27 37"/>',
+  open: '<path d="M6 14 H19 L22 18 H42 V38 H6 Z" /><path d="M6 22 H42" />'
+};
+const START_KINDS = { script: 'Play / Musical', concert: 'Concert' };
+function startIcon(k) { return `<svg class="st-icon" viewBox="0 0 48 48" fill="none">${START_ICONS[k]}</svg>`; }
+async function renderStart() {
+  const tile = (k, title, text) => `<button class="st-tile" data-start="${k}">${startIcon(k)}<span class="st-t">${esc(title)}</span><span class="st-d">${esc(text)}</span></button>`;
+  startBody.innerHTML = `
+    ${startCanClose ? '<button class="st-close" data-start="close" title="Back (Esc)">✕</button>' : ''}
+    <div class="st-brand">M<span class="mi-brand-i">i</span>KALLBOOK</div>
+    <div class="st-q">What are you calling?</div>
+    <div class="st-tiles">
+      ${tile('script', 'Play / Musical', 'A script: import the PDF or paste the text, then mark every cue')}
+      ${tile('concert', 'Concert', 'A running order: songs, speeches, transitions and riser moves')}
+      ${tile('follow', 'Follow the SM', 'An operator’s computer: follow the stage manager’s show over the network')}
+      ${tile('open', 'Open File…', 'A show saved before (Ctrl+O)')}
+    </div>
+    <div class="st-recent" id="stRecent"></div>
+    <div class="st-foot"><button class="mi-btn help-btn" data-start="manual" title="User Manual (F1)">?</button><div class="tb-fill"></div><button class="mi-btn mi-btn-exit" data-start="exit">Exit</button></div>`;
+  let list = [];
+  try { list = (await bridge.recents()) || []; } catch (_) {}
+  const box = document.getElementById('stRecent');
+  if (!box || !startOpen()) return;
+  box.innerHTML = list.length ? `<div class="mi-label">Recent</div>` + list.map(r => `
+      <button class="st-rec" data-recent="${esc(r.path)}" title="${esc(r.path)}">
+        <span class="st-rec-name">${esc(r.name)}</span><span class="st-rec-kind">${esc(START_KINDS[r.kind] || '')}</span><span class="st-rec-path">${esc(r.folder || '')}</span></button>`).join('') : '';
+}
+startBody.addEventListener('click', async e => {
+  const rec = e.target.closest('[data-recent]');
+  if (rec) { openRecent(rec.dataset.recent); return; }
+  const b = e.target.closest('[data-start]');
+  if (!b) return;
+  const k = b.dataset.start;
+  if (k === 'close') { if (startCanClose) hideStart(); return; }
+  if (k === 'exit') { exitCmd(); return; }
+  if (k === 'manual') { bridge.openManual(); return; }
+  if (k === 'open') { openShowCmd(); return; }
+  if ((await startNewShow()) === false) return;
+  if (k === 'concert') { if (mode !== 'edit') setMode('edit'); newRunningOrderCmd(); }      // runorder.js
+  else if (k === 'follow') openLinkDialog();                                                // link.js
+});
+// Keys while it is open: F1, Ctrl+O, and Esc (back, from New)
+function startKeydown(e) {
+  const ctrl = e.ctrlKey || e.metaKey;
+  if (e.key === 'F1') { e.preventDefault(); if (!e.repeat) bridge.openManual(); return; }
+  if (e.key === 'Escape') { e.preventDefault(); if (startCanClose) hideStart(); return; }
+  if (ctrl && e.key.toLowerCase() === 'o') { e.preventDefault(); openShowCmd(); }
+}
+showStart(false);
+
