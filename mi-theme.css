@@ -1,9 +1,14 @@
 /* ════════════════════════════════════════════════════════════════════
    Mi suite theme: shared look for MiKue and later Mi apps.
-   Values are taken from MiKonsole_v2026Z.html so the apps match.
+   Values were taken from MiKonsole_v2026Z.html so the apps match.
+   2026.02 reskin (2026-11-16): per-app tint over the aluminum, translucent
+   sections, brass row states, round brass GO, ticket standby, notched tabs,
+   icon keys, and new type roles (Big Shoulders / Libre Franklin / Courier
+   Prime; Bebas only for app names). MiKonsole is not part of this pass.
    Master copy lives in the MiKue repo. MiKonsole keeps its own inline
    styles for now; change both by hand until MiKonsole loads this file.
-   Requires mi-fonts.css (Barlow Condensed, Bebas Neue, Share Tech Mono).
+   Requires mi-fonts.css (Big Shoulders, Libre Franklin, Courier Prime,
+   Bebas Neue, Barlow Condensed, Share Tech Mono).
    ════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -15,8 +20,10 @@
   --mi-well:          #1a1a1a;   /* recessed areas                    */
   /* Main-screen sections (2026.01 step 3): MiKonsole's console sections
      (Groups, Submasters, Effects), so the aluminum only shows between them */
-  --mi-section-bg:     #1e1e1e;
-  --mi-section-border: #686868;
+  /* 2026.02: translucent so the app tint shows through. Over plain
+     aluminum this lands close to the old #1e1e1e. */
+  --mi-section-bg:     rgba(10, 8, 8, 0.45);
+  --mi-section-border: rgba(255, 255, 255, 0.24);
   --mi-section-edge:   2px;
   --mi-section-radius: 8px;
 
@@ -29,17 +36,39 @@
   --mi-rule:          #606060;   /* header bottom rule                */
   --mi-border:        #686868;
   --mi-border-hover:  #909090;
-  --mi-row-line:      #2a2010;
+  --mi-row-line:      rgba(0, 0, 0, 0.28);
 
   /* Brand gold */
   --mi-gold:          #c09030;
   --mi-gold-bright:   #d4a84b;
   --mi-gold-line:     #c0a050;
 
-  /* Cue list states (same as MiKonsole's cue list) */
-  --mi-row-active:    #57471e;
-  --mi-row-next:      #2a1e08;
-  --mi-row-running:   #3a2e0e;
+  /* Cue list states. 2026.02: warm translucent lifts (work on every tint);
+     the current row also gets a brass rail (--mi-rail), the next a dashed one */
+  --mi-row-active:    rgba(255, 214, 140, 0.16);
+  --mi-row-next:      rgba(255, 214, 140, 0.05);
+  --mi-row-running:   rgba(255, 214, 140, 0.08);
+  --mi-row-hover:     rgba(255, 214, 140, 0.07);
+  --mi-rail:          #c9a24a;
+  --mi-rail-next:     #8c6a26;
+
+  /* Brass hardware (from the MiKollection site) */
+  --mi-brass:         #c9a24a;
+  --mi-brass-hi:      #ecd08a;
+  --mi-brass-lo:      #8c6a26;
+  --mi-brass-ink:     #2a1b07;
+  --mi-bulb:          #ffe2a0;
+
+  /* Button bases: opaque so the aluminum and the tint never show through a key.
+     The base is the aluminum's own grey, so keys look the same in every app. */
+  --mi-key-base:      #2c2c2c;
+  --mi-key-hover:     #4e463a;   /* old #57471e, warmed to match the new row lift */
+  --mi-key-on:        #4e463a;
+
+  /* App tint over the aluminum. Each app sets --mi-app-tint in its own
+     stylesheet; unset means plain aluminum. */
+  --mi-app-tint:          #3b3a3a;   /* neutral: no visible tint */
+  --mi-app-tint-strength: 0.6;
 
   /* GO (green) */
   --mi-go-bg:         #1e4838;
@@ -62,8 +91,12 @@
   --mi-err:           #d08080;
 
   /* Type */
-  --mi-font-ui:       'Barlow Condensed', sans-serif;
-  --mi-font-brand:    'Bebas Neue', sans-serif;
+  --mi-font-ui:       'Big Shoulders', 'Barlow Condensed', sans-serif;   /* signage: labels, buttons, headings */
+  --mi-font-num:      'Big Shoulders', sans-serif;                       /* big cue numbers, clocks */
+  --mi-font-read:     'Libre Franklin', 'Segoe UI', sans-serif;          /* anything read as a sentence */
+  --mi-font-script:   'Courier Prime', 'Courier New', monospace;         /* the script */
+  --mi-font-brand:    'Bebas Neue', sans-serif;                          /* app names only */
+  --mi-font-i:        'Barlow Condensed', sans-serif;                    /* the lowercase i in app names */
   --mi-font-mono:     'Share Tech Mono', monospace;
 
   --mi-radius:        16px;
@@ -127,7 +160,7 @@ input, textarea, select, [contenteditable] { user-select: text; }
   letter-spacing: 4px; text-transform: uppercase; line-height: 1;
 }
 .mi-brand-name .mi-brand-i {
-  font-family: var(--mi-font-ui); font-weight: 700; text-transform: lowercase;
+  font-family: var(--mi-font-i); font-weight: 700; text-transform: lowercase;
   font-size: 28px; vertical-align: baseline; letter-spacing: 4px; color: var(--mi-gold);
 }
 .mi-brand-sub { font-family: var(--mi-font-mono); font-size: 9px; color: var(--mi-text); letter-spacing: 1px; }
@@ -148,14 +181,14 @@ input, textarea, select, [contenteditable] { user-select: text; }
 /* ── Buttons ─────────────────────────────────────────────────────────── */
 .mi-btn {
   font-family: var(--mi-font-ui); font-size: 14px; font-weight: 700; letter-spacing: 2px;
-  padding: 9px 14px; background: transparent; border: 1px solid var(--mi-border);
+  padding: 9px 14px; background: var(--mi-key-base); border: 1px solid var(--mi-border);
   color: var(--mi-text); border-radius: 5px; cursor: pointer; text-transform: uppercase;
   transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
 }
-.mi-btn:hover { background: var(--mi-row-active); border-color: var(--mi-gold-line); }
+.mi-btn:hover { background: var(--mi-key-hover); border-color: var(--mi-gold-line); }
 .mi-btn:active { transform: scale(0.97); }
 .mi-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
-.mi-btn.on { background: var(--mi-row-active); border-color: var(--mi-text); }
+.mi-btn.on { background: var(--mi-key-on); border-color: var(--mi-text); }
 
 .mi-btn-go {
   font-family: var(--mi-font-ui); font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
@@ -181,7 +214,7 @@ input, textarea, select, [contenteditable] { user-select: text; }
 
 .mi-btn-close {
   font-family: var(--mi-font-ui); font-size: 13px; font-weight: 700; letter-spacing: 1px;
-  padding: 6px 14px; background: transparent; border: 1px solid #4a3030; color: #b07070;
+  padding: 6px 14px; background: var(--mi-key-base); border: 1px solid #4a3030; color: #b07070;
   cursor: pointer; border-radius: 4px; text-transform: uppercase; transition: all 0.15s;
 }
 .mi-btn-close:hover { background: #2a1818; color: #e09090; border-color: #7a4040; }
@@ -248,7 +281,7 @@ input, textarea, select, [contenteditable] { user-select: text; }
 }
 .mi-file-btn {
   font-family: var(--mi-font-mono); font-size: 13px; letter-spacing: 1px; padding: 7px 12px;
-  background: transparent; border: 1px solid #686868; color: #f0e8d0; cursor: pointer; border-radius: 4px;
+  background: var(--mi-key-base); border: 1px solid #686868; color: #f0e8d0; cursor: pointer; border-radius: 4px;
   text-transform: uppercase; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
 }
 .mi-file-btn:hover { background: #57471e; color: #f0e8d0; border-color: #c0a050; }
@@ -326,14 +359,14 @@ input, textarea, select, [contenteditable] { user-select: text; }
 .seg-btn { border-radius: 0; padding: 9px 12px; }
 .seg-btn:first-child { border-radius: 5px 0 0 5px; }
 .seg-btn:last-child  { border-radius: 0 5px 5px 0; border-left: none; }
-.seg-btn.on { background: var(--mi-row-active); border-color: var(--mi-text); color: var(--mi-text); }
+.seg-btn.on { background: var(--mi-key-on); border-color: var(--mi-text); color: var(--mi-text); }
 .mi-header { gap: 12px; }
 .mi-brand { min-width: 0; flex-shrink: 0; }
 .mi-status-bar { flex-wrap: nowrap; flex-shrink: 0; }
 .mi-file-status { flex-shrink: 0; }
 .mi-menu { position: relative; }
 .menu-caret { font-size: 11px; letter-spacing: 0; opacity: 0.8; }
-.mi-menu.open #btnUtil { background: var(--mi-row-active); border-color: var(--mi-gold-line); }
+.mi-menu.open #btnUtil { background: var(--mi-key-on); border-color: var(--mi-gold-line); }
 .menu-list {
   display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 800; min-width: 290px;
   background: var(--mi-panel); border: 1px solid #5a5040; border-radius: 10px; padding: 6px;
@@ -383,7 +416,7 @@ input, textarea, select, [contenteditable] { user-select: text; }
   background: var(--mi-well); color: var(--mi-text-dim); font-size: 16px; cursor: pointer; }
 .st-close:hover { color: var(--mi-text); border-color: var(--mi-border-hover); }
 .st-brand { font-family: var(--mi-font-brand); font-size: 46px; letter-spacing: 4px; color: var(--mi-text); text-align: center; line-height: 1; }
-.st-brand .mi-brand-i { font-family: var(--mi-font-ui); font-weight: 700; text-transform: lowercase; font-size: 40px; color: var(--mi-gold); }
+.st-brand .mi-brand-i { font-family: var(--mi-font-i); font-weight: 700; text-transform: lowercase; font-size: 40px; color: var(--mi-gold); }
 .st-q { font-family: var(--mi-font-ui); font-size: 20px; color: var(--mi-text-dim); text-align: center; margin: 6px 0 24px; letter-spacing: 0.5px; }
 .st-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .st-tile { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px 14px 18px; min-height: 210px;
@@ -394,13 +427,13 @@ input, textarea, select, [contenteditable] { user-select: text; }
 .st-icon .f { fill: var(--mi-gold-bright); stroke: none; }
 .st-icon .dim { opacity: 0.55; }
 .st-t { font-family: var(--mi-font-ui); font-size: 22px; font-weight: 700; letter-spacing: 1px; }
-.st-d { font-family: var(--mi-font-ui); font-size: 15px; color: var(--mi-text-dim); line-height: 1.35; }
+.st-d { font-family: var(--mi-font-read); font-size: 15px; color: var(--mi-text-dim); line-height: 1.35; }
 .st-recent { margin-top: 22px; display: flex; flex-direction: column; gap: 3px; }
 .st-recent .mi-label { margin-bottom: 4px; }
 .st-rec { display: grid; grid-template-columns: minmax(0, 1.2fr) 120px minmax(0, 2fr); gap: 12px; align-items: center; text-align: left;
   padding: 7px 10px; border: 1px solid transparent; border-radius: 6px; background: none; cursor: pointer; color: var(--mi-text); }
 .st-rec:hover { background: #2e2a20; border-color: #5a5040; }
-.st-rec-name { font-family: var(--mi-font-ui); font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-rec-name { font-family: var(--mi-font-read); font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .st-rec-kind { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-gold-bright); letter-spacing: 1px; text-transform: uppercase; }
 .st-rec-path { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }
 .st-foot { display: flex; align-items: center; margin-top: 18px; }
@@ -420,3 +453,172 @@ input, textarea, select, [contenteditable] { user-select: text; }
 }
 .st-close:hover { box-shadow: var(--mk-raise-h); }
 .st-close:active { background-image: var(--mk-face-in) !important; box-shadow: var(--mk-press); transform: translateY(var(--mk-sink)); }
+
+/* ════════════════════════════════════════════════════════════════════
+   2026.02 reskin (2026-11-16). Shared by every Mi app except MiKonsole.
+   Keep at the end of this file.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── App tint: a colour wash over the brushed aluminum ───────────────────
+   Blends with the texture so the grain still shows. Set per app:
+     :root { --mi-app-tint: #8e1a2c; }                                    */
+.mi-console-texture::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: var(--mi-app-tint); mix-blend-mode: color; opacity: var(--mi-app-tint-strength);
+}
+.mi-console-texture::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--mi-app-tint) 20%, transparent), transparent 75%);
+}
+
+/* ── Reading text ────────────────────────────────────────────────────── */
+.modal-detail { font-family: var(--mi-font-read); font-size: 13px; }
+textarea.mi-input { font-family: var(--mi-font-read); }
+
+/* ── Round brass GO with its side column ─────────────────────────────────
+   Markup: <div class="mi-go-row">
+             <button class="mi-btn-go mi-go-round" id="btnGo">GO</button>
+             <div class="mi-go-side"><div class="mi-armed">Armed</div> …buttons… </div>
+           </div>
+   "Armed" dims by itself when the GO is disabled (no JS needed).        */
+.mi-go-row { display: flex; align-items: center; gap: 18px; padding: 8px 4px 6px 8px; }
+.mi-btn-go.mi-go-round {
+  width: 172px; height: 172px; flex-shrink: 0; padding: 0 0 0 8px; border-radius: 50%;
+  border: none; color: var(--mi-brass-ink);
+  font-family: var(--mi-font-ui); font-weight: 900; font-size: 70px; letter-spacing: 8px; line-height: 1;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  background-color: var(--mi-brass);
+  background-image: radial-gradient(circle at 50% 32%, #f4dc9a 0%, #d9b45c 42%, #c9a24a 64%, #a07a2a 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), inset 0 -7px 0 var(--mi-brass-lo), 0 0 0 2px var(--mi-brass-lo),
+              0 0 0 5px rgba(255,226,160,0.30), 0 0 38px 8px rgba(255,200,110,0.35), 0 10px 22px rgba(0,0,0,0.5);
+  transition: box-shadow 0.15s, transform 0.06s, filter 0.15s;
+}
+.mi-btn-go.mi-go-round:hover { color: var(--mi-brass-ink); filter: brightness(1.06);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), inset 0 -7px 0 var(--mi-brass-lo), 0 0 0 2px var(--mi-brass-lo),
+              0 0 0 5px rgba(255,226,160,0.40), 0 0 46px 10px rgba(255,200,110,0.45), 0 10px 22px rgba(0,0,0,0.5); }
+.mi-btn-go.mi-go-round:active, .mi-btn-go.mi-go-round.flash {
+  transform: translateY(2px);
+  background-image: radial-gradient(circle at 50% 40%, #e8cc80 0%, #c9a24a 55%, #94702a 100%) !important;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.35), inset 0 -2px 0 var(--mi-brass-lo), 0 0 0 2px var(--mi-brass-lo),
+              0 0 0 5px rgba(255,226,160,0.55), 0 0 54px 14px rgba(255,214,140,0.55), 0 4px 10px rgba(0,0,0,0.5);
+}
+.mi-btn-go.mi-go-round:disabled { opacity: 0.4; filter: grayscale(0.6); box-shadow: inset 0 2px 0 rgba(255,255,255,0.3), inset 0 -7px 0 var(--mi-brass-lo), 0 0 0 2px var(--mi-brass-lo), 0 10px 22px rgba(0,0,0,0.5); }
+.mi-go-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.mi-go-side .mi-btn { height: 46px; font-size: 16px; letter-spacing: 3px; }
+.mi-armed {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mi-font-ui); font-weight: 800; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--mi-bulb);
+  transition: opacity 0.2s;
+}
+.mi-armed::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--mi-bulb); box-shadow: 0 0 8px 2px rgba(255,214,140,0.75); }
+.mi-go-round:disabled ~ .mi-go-side .mi-armed { opacity: 0.3; }
+.mi-go-round:disabled ~ .mi-go-side .mi-armed::before { box-shadow: none; background: #6a5a3a; }
+
+/* ── Ticket (standby): stub with the number, perforation, body ──────────
+   Markup: <div class="mi-ticket">
+             <div class="mi-ticket-stub"><div class="mi-ticket-label">Standby</div> …number… </div>
+             <div class="mi-ticket-body"> …name, meta, notes… </div>
+           </div>                                                         */
+.mi-ticket {
+  display: flex; min-height: 92px; border-radius: 6px;
+  background: rgba(10, 8, 8, 0.55); box-shadow: inset 0 0 0 1px var(--mi-brass-lo);
+  -webkit-mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 9px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+}
+.mi-ticket-stub {
+  width: 92px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 10px 6px; border-right: 2px dashed var(--mi-brass-lo); text-align: center;
+}
+.mi-ticket-label { font-family: var(--mi-font-ui); font-weight: 800; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--mi-brass); }
+.mi-ticket-stub .mi-ticket-num, .mi-ticket-stub > [id] {
+  font-family: var(--mi-font-num); font-weight: 800; font-size: 46px; line-height: 1; color: var(--mi-brass-hi);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mi-ticket-body { flex: 1; min-width: 0; padding: 10px 16px 10px 14px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+
+/* ── Notched tab: solid type/department colour, dark text ────────────────
+   Set the colour with --tab (e.g. style="--tab: #e0b04a").              */
+.mi-tab {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 8px 0 12px;
+  font-family: var(--mi-font-ui); font-weight: 800; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+  color: #1a1208; background: var(--tab, var(--mi-brass)); border: none; border-radius: 0 3px 3px 0;
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 7px 100%, 0 50%);
+}
+
+/* ── Icon key: icon over a label, with a colour strip on top ─────────────
+   Set the colour with --key. Icon: inline SVG stroked in currentColor.  */
+.mk-iconkey {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  width: 78px; min-height: 54px; padding: 7px 4px 5px !important; overflow: hidden; position: relative;
+  font-size: 12px !important; letter-spacing: 1px !important; color: var(--mi-text) !important;
+}
+.mk-iconkey::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--key, var(--mi-brass)); }
+.mk-iconkey svg { width: 22px; height: 22px; stroke: var(--key, var(--mi-brass)); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Opaque base for the reusable raised controls too (an app stylesheet,
+   loaded after this one, can still give them their own background) */
+.mk-key, .mk-chip { background-color: var(--mi-key-base); }
+
+/* ── Show-mode banner (MiKue, MiKallbook): quiet brass rail, not a coloured bar ── */
+.show-lock {
+  display: none; align-items: center; gap: 10px; margin-bottom: 10px; padding: 8px 12px;
+  background: var(--mi-section-bg); border: 1px solid var(--mi-brass-lo); border-left: 4px solid var(--mi-brass); border-radius: 6px;
+  font-family: var(--mi-font-ui); font-weight: 800; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--mi-brass-hi);
+}
+.show-lock::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--mi-bulb); box-shadow: 0 0 7px 2px rgba(255,214,140,0.6); }
+body.show-mode .show-lock { display: flex; }
+
+/* ── Panels, modals and menus take a little of the app tint ──────────── */
+:root { --mi-panel: color-mix(in srgb, var(--mi-app-tint) 14%, #3b3a3a); }
+.mi-sp-header { border-bottom-color: var(--mi-brass-lo); }
+.mi-sp-title { color: var(--mi-brass-hi); }
+
+/* ── Side panels: a fixed margin at the bottom edge, and the scrolling
+   content fades out above it, so text never sits on the panel's rim ── */
+.mi-side-panel { padding-bottom: 12px; }
+.mi-side-panel .mi-scroll {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 22px), transparent);
+}
+
+/* ── Every scrolling wrapper: 12px of room after the last row, so it never
+   sits on the bottom edge. (Text inputs are left alone; side panels also
+   fade, above.) App stylesheets add their own scrollers that are not
+   .mi-scroll. No fade here: many scrollers carry their own border. ─── */
+.mi-scroll:not(textarea) {
+  padding-bottom: 12px;
+}
+
+/* ── Scrolling lists stop short of their box's bottom edge ───────────────
+   Whatever holds a .mi-scroll keeps 12px clear below it, so rows scrolled
+   mid-list are cut off 12px above the edge instead of at it. */
+:has(> .mi-scroll:not(textarea)) { padding-bottom: 12px; }
+/* A bordered box around a scrolling list: the border is on the frame, the
+   list scrolls inside it (the list can't hold its own border and also
+   stop short of it). */
+.mi-frame {
+  display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden;
+  background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius);
+}
+.mi-frame > .mi-scroll { flex: 1; min-height: 0; }
+
+/* ── Primary action buttons (+ Performance, + Garment, Save…, Import…):
+   brass like the GO, not the old green (Mike, 2026-11-16). The round GO
+   keeps its own rules above. ─────────────────────────────────────────── */
+.mi-btn-go:not(.mi-go-round) {
+  background-color: var(--mi-brass);
+  background-image: linear-gradient(180deg, #f0d898 0%, #d6b25e 42%, #c9a24a 58%, #a8822e 100%) !important;
+  border: 1px solid var(--mi-brass-lo); color: var(--mi-brass-ink); text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -2px 0 var(--mi-brass-lo), 0 1px 0 rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.3);
+}
+.mi-btn-go:not(.mi-go-round):hover {
+  color: var(--mi-brass-ink); border-color: var(--mi-brass);
+  background-image: linear-gradient(180deg, #f8e4b0 0%, #e0be6a 42%, #d4ae58 58%, #b08a34 100%) !important;
+}
+.mi-btn-go:not(.mi-go-round):active, .mi-btn-go:not(.mi-go-round).flash {
+  background-image: linear-gradient(180deg, #a8822e 0%, #c9a24a 100%) !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.45); transform: translateY(1px);
+}
+.mi-btn-go:not(.mi-go-round):disabled { opacity: 0.4; cursor: default; }

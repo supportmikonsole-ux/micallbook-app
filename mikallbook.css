@@ -4,9 +4,12 @@
    Header, modal and toast rules match MiKue's mikue.css.
    ════════════════════════════════════════════════════════════════════ */
 
+/* 2026.02 reskin: MiKallbook's tint over the aluminum (umber) */
+:root { --mi-app-tint: #8a6a3a; }
+
 /* ── Header extras (same as MiKue) ───────────────────────────────────── */
 /* File area (left, next to the brand): mi-theme.css .mi-file */
-#btnShowMode.on { background: #5a4a10; border-color: #e0c040; color: #ffe880; }
+#btnShowMode.on { border-color: var(--mi-brass); color: var(--mi-brass-hi); }
 
 @media (max-width: 1560px) {
   .mi-status-bar { gap: 4px; }
@@ -29,50 +32,42 @@
 /* ── Calling column ──────────────────────────────────────────────────── */
 #calling { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 
-.standby {
-  background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius);
-  padding: 10px 14px 12px;
-}
-.standby-main { display: flex; align-items: center; gap: 14px; margin-top: 4px; min-height: 64px; }
+/* Standby: a ticket (2026.02; .mi-ticket in mi-theme.css). The stub holds the
+   label and, in Show mode, the clock; the body holds the cues. */
+.mi-ticket-stub .sb-clock { font-family: var(--mi-font-num); font-weight: 700; font-size: 20px; letter-spacing: 1px; color: var(--mi-text); margin-top: 6px; }
 .standby-cues {
-  font-family: var(--mi-font-brand); font-size: 44px; line-height: 1.05; color: var(--mi-text);
-  letter-spacing: 2px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--mi-font-num); font-weight: 800; font-size: 38px; line-height: 1.05; color: var(--mi-text);
+  letter-spacing: 1px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .standby-meta { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-dim); margin-top: 3px; }
 .standby-notes {
-  font-family: var(--mi-font-ui); font-size: 15px; color: #e8dcb8; margin-top: 6px;
+  font-family: var(--mi-font-read); font-size: 14px; color: #e8dcb8; margin-top: 4px;
   white-space: pre-wrap; max-height: 3.2em; overflow: hidden;
 }
 .standby-notes:empty { display: none; }
 
-.go-big { height: 150px; font-size: 64px; letter-spacing: 12px; padding-left: 12px; width: 100%; }
-.go-big:disabled { opacity: 0.35; cursor: default; }
-
-.transport-row { display: flex; gap: 8px; }
-.transport-row .mi-btn { flex: 1; height: 46px; font-size: 16px; letter-spacing: 3px; }
+/* GO: round brass, with Back and DRIVE to its right (2026.02; .mi-go-row in mi-theme.css) */
+.mi-go-row .hint { text-align: left; line-height: 1.6; }
 /* DRIVE: GO fires MiKonsole / MiKue (drive.js) */
-.transport-row .drive-btn { font-size: 14px; letter-spacing: 2px; color: var(--mi-text-dim); }
+.mi-go-side .drive-btn { font-size: 14px; letter-spacing: 2px; color: var(--mi-text-dim); }
 .drive-btn.on { background: #5a1a1a; border-color: #ff6060; color: #ffd0d0; box-shadow: 0 0 10px rgba(255,80,80,0.25); }
 .drive-btn:disabled { opacity: 0.35; }
-body.driving .show-lock { background: #4a1414; border-color: #e05050; color: #ffd8d8; }
-body.drive-off .show-lock { background: #3a2a08; border-color: #e0a030; color: #ffd890; }
-.mi-btn-go.drive-fail { background: #6a1c1c; border-color: #ff7070; box-shadow: 0 0 14px rgba(255,80,80,0.4); }
+/* Show-mode banner (mi-theme.css) in its DRIVE states: the rail and text change colour */
+body.driving .show-lock { border-color: #7a3030; border-left-color: #e05050; color: #ffb0a8; }
+body.driving .show-lock::before { background: #ff7060; box-shadow: 0 0 7px 2px rgba(255,96,80,0.6); }
+body.drive-off .show-lock { border-color: #7a5a20; border-left-color: #e0a030; color: #ffd890; }
+body.drive-off .show-lock::before { background: #e0a030; box-shadow: none; }
 .hint { font-family: var(--mi-font-mono); font-size: 10px; color: var(--mi-text-dim); letter-spacing: 0.5px; text-align: center; }
 
 .section-head { display: flex; justify-content: space-between; padding: 0 2px 4px; border-bottom: 1px solid #4a4436; }
 .upcoming { flex: 1; display: flex; flex-direction: column; min-height: 120px; background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 8px 10px 4px; }
-.upcoming-list { flex: 1; padding-top: 6px; }
+.upcoming-list { flex: 1; min-height: 0; padding-top: 6px; }   /* min-height: 0 so it scrolls inside its box instead of growing past it */
 .upcoming-empty { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-muted); text-align: center; padding: 18px 0; }
 
 /* ── Script column ───────────────────────────────────────────────────── */
 #scriptWrap { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 
-.show-lock {
-  display: none; margin-bottom: 10px; padding: 9px 12px; border-radius: 6px;
-  background: #3a3010; border: 1px solid #a08828; color: #ffe880;
-  font-family: var(--mi-font-ui); font-weight: 700; font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
-}
-body.show-mode .show-lock { display: block; }
+/* Show-mode banner: styled in mi-theme.css (.show-lock, 2026.02) */
 
 /* Script toolbar */
 /* Wraps onto a second row in narrow windows rather than running under the
@@ -240,7 +235,7 @@ body.placing #inspector.open,
 body.dragging-mark #inspector.open { transform: translateX(calc(-100% - 24px)); }
 .placing-banner {
   position: absolute; left: 50%; top: calc(var(--bar-bottom, 42px) + 10px); transform: translateX(-50%); z-index: 60;
-  padding: 8px 16px; border-radius: 8px; background: #3a3010; border: 1px solid #e0c040; color: #ffe880;
+  padding: 8px 16px; border-radius: 8px; background: #2e2618; border: 1px solid var(--mi-brass); color: #ffe880;
   font-family: var(--mi-font-ui); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; pointer-events: none;
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
@@ -271,9 +266,9 @@ body.dragging-mark #inspector.open { transform: translateX(calc(-100% - 24px)); 
 .in-point-head { display: flex; justify-content: space-between; align-items: baseline; }
 .in-k { font-family: var(--mi-font-ui); font-weight: 700; font-size: 15px; letter-spacing: 1px; color: var(--mi-text); }
 .in-status, .in-order { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-dim); }
-.in-hint { font-family: var(--mi-font-ui); font-size: 13px; color: var(--mi-text-muted); line-height: 1.3; }
+.in-hint { font-family: var(--mi-font-read); font-size: 13px; color: var(--mi-text-muted); line-height: 1.3; }
 .in-empty { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-muted); }
-.in-note { width: 100%; resize: vertical; min-height: 56px; font-family: var(--mi-font-ui); font-size: 15px; padding: 7px 8px; }
+.in-note { width: 100%; resize: vertical; min-height: 56px; font-family: var(--mi-font-read); font-size: 15px; padding: 7px 8px; }
 .in-vis { margin-left: 0; }
 .in-notice {
   padding: 8px 10px; border-radius: 6px; background: #3a2414; border: 1px dashed #e08060; color: #ffd8c0;
@@ -300,11 +295,11 @@ body.dragging-mark #inspector.open { transform: translateX(calc(-100% - 24px)); 
 .dp-defaults { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid #4a4436; }
 
 .standby-head { display: flex; justify-content: space-between; align-items: baseline; }
-.sb-clock { display: none; font-family: var(--mi-font-brand); font-size: 26px; letter-spacing: 2px; color: var(--mi-text); line-height: 1; }
+.sb-clock { display: none; font-family: var(--mi-font-num); font-weight: 800; font-size: 26px; letter-spacing: 2px; color: var(--mi-text); line-height: 1; }
 body.show-mode .sb-clock { display: block; }
 
 /* ── Calling (Show mode) ─────────────────────────────────────────────── */
-.mk-tab.standby { background: #5a4a10; border-color: #ffe070; color: #fff; z-index: 2; transform: scale(1.08); transform-origin: left center; }
+.mk-tab.standby { background: #4e3e18; border-color: var(--mi-brass-hi); color: #fff; z-index: 2; transform: scale(1.08); transform-origin: left center; }
 .mk-tab.called, .mk-line.called, .mk-dot.called { opacity: 0.35; }
 .mk-line.standby { stroke-width: 2.8; opacity: 1; }
 .mk-band {
@@ -319,7 +314,7 @@ body.show-mode .sb-clock { display: block; }
   font-family: var(--mi-font-mono); font-size: 10px; color: #ffd890; border: 1px solid #806838;
   border-radius: 3px; padding: 0 4px; margin-left: 4px;
 }
-.go-row.standby { background: #5a4a10; border-color: #e0c040; }
+.go-row.standby { background: #4e3e18; border-color: var(--mi-brass); box-shadow: inset 4px 0 0 var(--mi-rail); }
 .go-row.called { opacity: 0.4; }
 
 /* Calling column list (Edit mode) */
@@ -351,22 +346,22 @@ body.operator-mode #operator {
   grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: auto minmax(0, 1fr);
 }
 .op-top { grid-column: 1 / 3; display: flex; align-items: baseline; gap: 22px; padding: 2px 4px 10px; border-bottom: 1px solid #4a4436; }
-.op-dept { font-family: var(--mi-font-brand); font-size: 34px; letter-spacing: 2px; line-height: 1; }
+.op-dept { font-family: var(--mi-font-num); font-weight: 800; font-size: 34px; letter-spacing: 2px; line-height: 1; }
 .op-sm, .op-link { font-family: var(--mi-font-mono); font-size: 13px; color: var(--mi-text-dim); }
 .op-link { flex: 1; }
-.op-clock { font-family: var(--mi-font-brand); font-size: 34px; letter-spacing: 2px; color: var(--mi-text); line-height: 1; }
+.op-clock { font-family: var(--mi-font-num); font-weight: 800; font-size: 34px; letter-spacing: 2px; color: var(--mi-text); line-height: 1; }
 
 .op-main {
   display: flex; flex-direction: column; gap: 8px; min-height: 0; padding: 16px 20px;
   background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: 14px;
   transition: background 0.15s, border-color 0.15s;
 }
-.op-state { font-family: var(--mi-font-brand); font-size: 30px; letter-spacing: 6px; color: var(--mi-text-muted); line-height: 1; }
-.op-cue { font-family: var(--mi-font-brand); font-size: clamp(56px, 9vh, 110px); line-height: 0.95; letter-spacing: 2px; display: flex; flex-wrap: wrap; gap: 0 28px; align-items: baseline; }
+.op-state { font-family: var(--mi-font-num); font-weight: 800; font-size: 30px; letter-spacing: 6px; color: var(--mi-text-muted); line-height: 1; }
+.op-cue { font-family: var(--mi-font-num); font-weight: 800; font-size: clamp(56px, 9vh, 110px); line-height: 0.95; letter-spacing: 2px; display: flex; flex-wrap: wrap; gap: 0 28px; align-items: baseline; }
 .op-with { font-family: var(--mi-font-ui); font-size: 22px; font-weight: 600; letter-spacing: 0.5px; color: var(--mi-text-dim); }
 .op-done { font-family: var(--mi-font-ui); font-size: 34px; font-weight: 700; color: var(--mi-text-dim); letter-spacing: 1px; }
 .op-meta { font-family: var(--mi-font-mono); font-size: 14px; color: var(--mi-text-dim); }
-.op-note { font-family: var(--mi-font-ui); font-size: 22px; color: #e8dcb8; }
+.op-note { font-family: var(--mi-font-read); font-size: 22px; color: #e8dcb8; }
 .op-note:empty { display: none; }
 /* Who wears the mics (from MiKast's mic plot) */
 .op-mics { font-family: var(--mi-font-ui); font-size: 24px; font-weight: 600; color: #d8eab0; white-space: pre-line; line-height: 1.25; }
@@ -385,9 +380,9 @@ body.operator-mode #operator {
 .op-side { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
 .op-next { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
 .op-card { background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
-.op-card-head { display: flex; gap: 14px; align-items: baseline; font-family: var(--mi-font-brand); font-size: 32px; letter-spacing: 1px; line-height: 1; }
+.op-card-head { display: flex; gap: 14px; align-items: baseline; font-family: var(--mi-font-num); font-weight: 800; font-size: 32px; letter-spacing: 1px; line-height: 1; }
 .op-card-meta { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-dim); margin-left: auto; }
-.op-card-note { font-family: var(--mi-font-ui); font-size: 15px; color: #e8dcb8; }
+.op-card-note { font-family: var(--mi-font-read); font-size: 15px; color: #e8dcb8; }
 .op-empty { font-family: var(--mi-font-mono); font-size: 12px; color: var(--mi-text-muted); padding: 8px 2px; }
 
 .op-clip { position: relative; overflow: hidden; border-radius: 6px; background: var(--paper); margin-bottom: 8px; isolation: isolate; }
@@ -430,16 +425,16 @@ body.operator-mode #operator {
 }
 .link-banner.hidden { display: none; }
 .link-banner.lost { background: #4a1414; border: 1px solid #e05050; color: #ffd8d8; }
-.link-banner.warn { background: #3a3010; border: 1px solid #a08828; color: #ffe880; }
+.link-banner.warn { background: #2e2618; border: 1px solid var(--mi-brass-lo); color: #ffe880; }
 .op-link.linked { color: #9fd8f0; }
 .op-link.lost { color: #ff9a9a; font-weight: 700; }
 
 .link-modal { width: 640px; }
 .lk-section { margin-top: 16px; padding: 12px 14px; border: 1px solid #4a4436; border-radius: 10px; background: rgba(0,0,0,0.18); }
 .lk-title { font-family: var(--mi-font-ui); font-size: 16px; font-weight: 700; letter-spacing: 0.5px; color: var(--mi-text); }
-.lk-hint { font-family: var(--mi-font-ui); font-size: 14px; color: var(--mi-text-dim); margin-top: 6px; line-height: 1.35; }
-.lk-note { font-family: var(--mi-font-ui); font-size: 13px; color: var(--mi-text-muted); margin-top: 12px; line-height: 1.4; }
-.lk-warn { margin-top: 10px; padding: 7px 10px; border-radius: 6px; background: #3a3010; border: 1px solid #a08828; font-family: var(--mi-font-ui); font-size: 14px; color: #ffe880; }
+.lk-hint { font-family: var(--mi-font-read); font-size: 14px; color: var(--mi-text-dim); margin-top: 6px; line-height: 1.35; }
+.lk-note { font-family: var(--mi-font-read); font-size: 13px; color: var(--mi-text-muted); margin-top: 12px; line-height: 1.4; }
+.lk-warn { margin-top: 10px; padding: 7px 10px; border-radius: 6px; background: #2e2618; border: 1px solid var(--mi-brass-lo); font-family: var(--mi-font-read); font-size: 13px; color: #ffe880; }
 .lk-ok { margin-top: 10px; font-family: var(--mi-font-ui); font-size: 14px; color: #a0f0d0; }
 .lk-error { margin-top: 10px; padding: 7px 10px; border-radius: 6px; background: #2a1616; border: 1px solid #a04040; font-family: var(--mi-font-ui); font-size: 14px; color: #ffd8d8; }
 .lk-left { justify-content: flex-start; margin-top: 10px; }
@@ -450,7 +445,7 @@ body.operator-mode #operator {
 .lk-cols { display: grid; grid-template-columns: 1fr auto; gap: 20px; margin-top: 14px; }
 .lk-addr { font-family: var(--mi-font-mono); font-size: 24px; color: var(--mi-text); margin-top: 4px; }
 .lk-iface { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-muted); margin-left: 10px; }
-.lk-code { font-family: var(--mi-font-brand); font-size: 44px; letter-spacing: 6px; color: #ffe880; line-height: 1.1; }
+.lk-code { font-family: var(--mi-font-num); font-weight: 800; font-size: 44px; letter-spacing: 6px; color: #ffe880; line-height: 1.1; }
 .lk-gap { display: block; margin-top: 14px; }
 .lk-clients { max-height: 150px; overflow: auto; margin-top: 4px; }
 .lk-client { display: flex; gap: 12px; align-items: baseline; padding: 4px 0; border-bottom: 1px solid #3a3428; font-family: var(--mi-font-ui); font-size: 15px; color: var(--mi-text); }
@@ -475,13 +470,13 @@ body.operator-mode #operator {
 .text-input {
   flex: 1; min-height: 0; resize: none; padding: 12px 14px;
   background: var(--mi-input-bg); color: var(--mi-text); border: 1px solid var(--mi-border); border-radius: 6px;
-  font-family: "Courier New", Courier, "Liberation Mono", monospace; font-size: 14px; line-height: 1.35;
+  font-family: var(--mi-font-script); font-size: 14px; line-height: 1.35;
   white-space: pre-wrap; tab-size: 4; outline: none;
 }
 .text-input:focus { border-color: #9a6818; }
 .text-foot { display: flex; align-items: center; gap: 8px; }
 .text-notice {
-  margin-top: 8px; padding: 7px 10px; border-radius: 6px; background: #3a3010; border: 1px solid #a08828;
+  margin-top: 8px; padding: 7px 10px; border-radius: 6px; background: #2e2618; border: 1px solid var(--mi-brass-lo);
   font-family: var(--mi-font-ui); font-size: 14px; color: #ffe880; letter-spacing: 0.3px;
 }
 .text-check { display: flex; align-items: center; gap: 6px; margin-left: 8px; font-family: var(--mi-font-ui); font-size: 14px; color: var(--mi-text); cursor: pointer; }
@@ -497,7 +492,7 @@ body.operator-mode #operator {
 .tm-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .tm-head .mi-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tm-log {
-  background: none; border: 1px solid #4a4436; border-radius: 4px; color: var(--mi-text-dim); cursor: pointer;
+  background: var(--mi-key-base); border: 1px solid #4a4436; border-radius: 4px; color: var(--mi-text-dim); cursor: pointer;
   font-family: var(--mi-font-ui); font-size: 12px; padding: 1px 10px; white-space: nowrap; flex-shrink: 0; min-width: 96px;
 }
 .tm-log:hover { color: var(--mi-text); border-color: var(--mi-gold-line); }
@@ -509,8 +504,8 @@ body.operator-mode #operator {
 .timing.idle .tm-log { font-size: 13px; letter-spacing: 0.5px; padding: 3px 10px; color: var(--mi-text-dim); border-color: var(--mi-border); }
 .tm-now { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-height: 0; }
 .tm-now:has(.tm-state:empty):has(.tm-elapsed:empty) { display: none; }
-.tm-state { font-family: var(--mi-font-brand); font-size: 22px; letter-spacing: 2px; color: var(--mi-text-dim); line-height: 1.1; }
-.tm-elapsed { font-family: var(--mi-font-brand); font-size: 30px; letter-spacing: 2px; color: var(--mi-text); line-height: 1; }
+.tm-state { font-family: var(--mi-font-num); font-weight: 800; font-size: 22px; letter-spacing: 2px; color: var(--mi-text-dim); line-height: 1.1; }
+.tm-elapsed { font-family: var(--mi-font-num); font-weight: 800; font-size: 30px; letter-spacing: 2px; color: var(--mi-text); line-height: 1; }
 .timing.run .tm-state { color: #a0f0d0; }
 .timing.int .tm-state { color: #ffe880; }
 .timing.done .tm-state { color: var(--mi-text-muted); }
@@ -613,13 +608,13 @@ body.operator-mode #operator {
 .rp-notes:empty { display: none; }
 .rp-notes { border-top: 1px solid #4a4436; padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .rp-notes-t { font-family: var(--mi-font-mono); font-size: 10px; color: var(--mi-text-dim); text-transform: uppercase; letter-spacing: 1px; }
-.rp-notes-h { font-family: var(--mi-font-ui); font-size: 13px; color: var(--mi-text-muted); line-height: 1.3; }
+.rp-notes-h { font-family: var(--mi-font-read); font-size: 13px; color: var(--mi-text-muted); line-height: 1.3; }
 .rp-notes-go { padding: 7px 10px; font-size: 13px; }
 .rp-qr { width: 132px; height: 132px; align-self: center; background: #fff; border-radius: 6px; padding: 2px; }
 .rp-qr svg { width: 100%; height: 100%; display: block; }
 .rp-notes-url { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text); word-break: break-all; user-select: text; }
 .rp-notes-code { font-family: var(--mi-font-ui); font-size: 14px; color: var(--mi-text-dim); }
-.rp-notes-code b { font-family: var(--mi-font-brand); font-size: 22px; letter-spacing: 3px; color: #ffe880; font-weight: 400; }
+.rp-notes-code b { font-family: var(--mi-font-num); font-weight: 800; font-size: 22px; letter-spacing: 3px; color: #ffe880; font-weight: 400; }
 /* ── Cue sheets (cuesheets.js) ───────────────────────────────────────── */
 .cs-chip { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 8px; vertical-align: 0; }
 .cs-wait { padding: 30px 0; text-align: center; }
@@ -642,12 +637,12 @@ body.operator-mode #operator {
 .menu-list { min-width: 270px; }   /* wider/narrower than the shared menu */
 .menu-item.on { color: #ffe880; }
 .menu-item.hidden { display: none; }
-.menu-note { font-family: var(--mi-font-ui); font-size: 12px; color: var(--mi-text-muted); padding: 6px 12px 2px; }
+.menu-note { font-family: var(--mi-font-read); font-size: 12px; color: var(--mi-text-muted); padding: 6px 12px 2px; }
 body.edit-mode .edit-hide { display: none; }
 
 /* ── Concert running order (runorder.js) ─────────────────────────────── */
 .ro-view { display: none; }
-#scriptWrap.ro .ro-view { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 10px 6px 0 12px; }
+#scriptWrap.ro .ro-view { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--mi-section-bg); border: var(--mi-section-edge) solid var(--mi-section-border); border-radius: var(--mi-section-radius); padding: 10px 6px 12px 12px; }
 #scriptWrap.ro #scriptView { display: none; }
 #scriptWrap.ro #contrastWrap, #scriptWrap.ro .script-bar .seg:has(#btnPaper) { display: none; }
 .ro-head { display: flex; align-items: center; gap: 10px; padding: 2px 4px 10px; border-bottom: 1px solid #4a4436; }
@@ -665,7 +660,7 @@ body.edit-mode .edit-hide { display: none; }
 .ro-song { --rc: #d4a84b; } .ro-speech { --rc: #9fd8f0; } .ro-transition { --rc: #a8a49a; }
 .ro-risers { --rc: #e88a5a; } .ro-intermission { --rc: #b98ad9; } .ro-other { --rc: #8a8070; }
 .ro-intermission { background: rgba(80,60,100,0.18); }
-.ro-num { font-family: var(--mi-font-brand); font-size: 28px; color: var(--mi-text-dim); text-align: right; line-height: 1; padding-top: 2px; }
+.ro-num { font-family: var(--mi-font-num); font-weight: 800; font-size: 28px; color: var(--mi-text-dim); text-align: right; line-height: 1; padding-top: 2px; }
 .ro-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .ro-row { display: flex; gap: 8px; align-items: center; }
 .ro-type { width: 130px; padding: 6px 6px; font-size: 14px; font-family: var(--mi-font-ui); }
@@ -681,7 +676,7 @@ body.edit-mode .edit-hide { display: none; }
 .ro-chip { font-family: var(--mi-font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--rc); border: 1px solid var(--rc); border-radius: 3px; padding: 0 5px; }
 .ro-show-len { font-family: var(--mi-font-mono); font-size: 13px; color: var(--mi-text-dim); margin-left: auto; }
 .ro-show-perf { font-family: var(--mi-font-ui); font-size: 16px; color: var(--mi-text-dim); }
-.ro-show-lines { font-family: var(--mi-font-ui); font-size: 15px; color: var(--mi-text-muted); border-left: 2px solid #4a4436; padding-left: 10px; }
+.ro-show-lines { font-family: var(--mi-font-read); font-size: 15px; color: var(--mi-text-muted); border-left: 2px solid #4a4436; padding-left: 10px; }
 .ro-show-lines .on { color: #ffe880; font-weight: 600; }
 .ro-gos { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ro-go {
@@ -690,14 +685,14 @@ body.edit-mode .edit-hide { display: none; }
 }
 .ro-go:hover { border-color: var(--mi-gold-line); }
 .ro-go.sel { background: var(--mi-row-active); border-color: var(--mi-gold-line); }
-.ro-go.standby { background: #5a4a10; border-color: #ffe070; box-shadow: 0 0 10px rgba(255,224,112,0.25); }
+.ro-go.standby { background: #4e3e18; border-color: var(--mi-brass-hi); box-shadow: 0 0 10px rgba(255,224,112,0.25); }
 .ro-go.called { opacity: 0.4; }
 .ro-go.missing { border-style: dashed; border-color: #c06060; }
 .ro-go-n { font-family: var(--mi-font-mono); font-size: 11px; font-weight: 400; color: var(--mi-text-dim); }
 .ro-sep { color: var(--mi-text-dim); font-weight: 400; }
 .ro-on { font-weight: 400; font-size: 13px; color: var(--mi-text-dim); }
 .ro-add-go { padding: 4px 10px; font-size: 12px; }
-.ro-item.standby { border-color: #e0c040; border-left-color: #ffe070; background: rgba(90,74,16,0.35); }
+.ro-item.standby { border-color: var(--mi-brass); border-left-color: var(--mi-brass-hi); background: var(--mi-row-active); }
 .ro-item.called { opacity: 0.55; }
 .ro-loose { margin-top: 8px; padding: 10px; border: 1px dashed #806838; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .ro-loose .mi-label { width: 100%; }
@@ -705,7 +700,7 @@ body.edit-mode .edit-hide { display: none; }
 .ro-in-item, .ro-in-line { width: 100%; font-family: var(--mi-font-ui); font-size: 14px; padding: 6px; }
 /* Operator mode: the item instead of a script excerpt */
 .ro-ex { --rc: #8a8070; border-left: 4px solid var(--rc); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; }
-.ro-ex-n { font-family: var(--mi-font-brand); font-size: 26px; color: var(--mi-text-dim); }
+.ro-ex-n { font-family: var(--mi-font-num); font-weight: 800; font-size: 26px; color: var(--mi-text-dim); }
 .ro-ex-start { font-family: var(--mi-font-mono); font-size: 12px; color: var(--mi-text-muted); }
 
 /* ── Milestones as cues and mic-number cues (2026-10-18) ─────────────── */
@@ -743,14 +738,14 @@ body.edit-mode .edit-hide { display: none; }
 .nt-step { font-family: var(--mi-font-ui); font-size: 14px; color: var(--mi-text-dim); }
 .nt-url { font-family: var(--mi-font-mono); font-size: 14px; color: var(--mi-text); word-break: break-all; user-select: text; }
 .nt-code { font-family: var(--mi-font-ui); font-size: 16px; color: var(--mi-text-dim); }
-.nt-code b { font-family: var(--mi-font-brand); font-size: 34px; letter-spacing: 4px; color: #ffe880; font-weight: 400; }
-.nt-help { font-family: var(--mi-font-ui); font-size: 14px; color: var(--mi-text-muted); line-height: 1.35; margin-top: 8px; }
+.nt-code b { font-family: var(--mi-font-num); font-weight: 800; font-size: 34px; letter-spacing: 4px; color: #ffe880; font-weight: 400; }
+.nt-help { font-family: var(--mi-font-read); font-size: 14px; color: var(--mi-text-muted); line-height: 1.35; margin-top: 8px; }
 .nt-help b { color: var(--mi-text); font-weight: 600; }
 .nt-side .nt-help { margin-top: 0; }
 
 /* ── MiKast link (mikast-link.js) ────────────────────────────────────── */
 .mk-status { margin-top: 4px; }
-.mk-pill { cursor: pointer; background: transparent; }
+.mk-pill { cursor: pointer; background: var(--mi-key-base); }
 .mk-pill:hover { border-color: var(--mi-gold-line); }
 .mk-modal { width: 620px; max-width: 94vw; }
 .mk-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: baseline; margin-top: 10px; }
@@ -758,8 +753,8 @@ body.edit-mode .edit-hide { display: none; }
 .mk-val b { font-weight: 700; }
 .mk-path { font-family: var(--mi-font-mono); font-size: 12px; color: var(--mi-text-dim); word-break: break-all; }
 .mk-dim { font-family: var(--mi-font-mono); font-size: 11px; color: var(--mi-text-muted); }
-.mk-help { font-family: var(--mi-font-ui); font-size: 14px; color: var(--mi-text-muted); line-height: 1.4; margin-top: 12px; }
-.mk-warn { font-family: var(--mi-font-ui); font-size: 14px; color: #e0b050; margin-top: 8px; line-height: 1.35; }
+.mk-help { font-family: var(--mi-font-read); font-size: 14px; color: var(--mi-text-muted); line-height: 1.4; margin-top: 12px; }
+.mk-warn { font-family: var(--mi-font-read); font-size: 14px; color: #e0b050; margin-top: 8px; line-height: 1.35; }
 .rp-group { padding: 10px 10px 4px; color: var(--mi-text-dim); }
 .rp-group:first-child { padding-top: 2px; }
 .rp-item.planned .rp-item-t { color: #d8ccb0; }
@@ -769,16 +764,27 @@ body.edit-mode .edit-hide { display: none; }
 /* Start Session: today's MiKast calls by name (timing.js askSessionKind) */
 .mk-choices { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
 .mk-choice { text-align: left; padding: 11px 14px; font-size: 15px; letter-spacing: 0.5px; text-transform: none;
-             border-color: var(--mi-go-border); background: var(--mi-go-bg); color: var(--mi-text); }
-.mk-choice:hover { background: var(--mi-go-hover-bg); border-color: var(--mi-go-hover-bd); }
-.mk-choice:focus { outline: 2px solid var(--mi-go-hover-bd); outline-offset: 2px; }
+             border-color: var(--mi-brass-lo); background: var(--mi-key-base); color: var(--mi-text); }
+.mk-choice:hover { background: var(--mi-key-hover); border-color: var(--mi-brass); }
+.mk-choice:focus { outline: 2px solid var(--mi-brass); outline-offset: 2px; }
 .mk-other { margin-top: 8px; }
 
-/* ── Warn / Standby calling steps (calling.js, Mike 2026-10-20) ──────── */
-.go-big.step-warn { background: #3e3010; border-color: #e0b050; color: #ffe0a0; font-size: 50px; letter-spacing: 8px; }
-.go-big.step-sb   { background: #4a3e0c; border-color: #e0c040; color: #ffe880; font-size: 44px; letter-spacing: 6px; }
-.go-big.step-warn:hover, .go-big.step-sb:hover { filter: brightness(1.15); }
-.go-big.flash-step { box-shadow: 0 0 22px rgba(240, 200, 80, 0.55); }
+/* ── Warn / Standby calling steps (calling.js, Mike 2026-10-20) ──────────
+   2026.02: the round GO turns dark with amber or gold lettering, so a step
+   can never be mistaken for a brass GO. Nothing fires on a step. */
+.mi-btn-go.mi-go-round.step-warn, .mi-btn-go.mi-go-round.step-sb {
+  border: none; font-size: 30px; letter-spacing: 2px; padding-left: 2px; text-shadow: none;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.12), inset 0 -6px 0 rgba(0,0,0,0.45), 0 0 0 2px var(--mi-brass-lo), 0 0 0 5px rgba(224,176,80,0.25), 0 10px 22px rgba(0,0,0,0.5);
+}
+.mi-btn-go.mi-go-round.step-warn { color: #ffe0a0; background-image: radial-gradient(circle at 50% 35%, #5a4618 0%, #3e3010 60%, #2a2008 100%) !important; }
+.mi-btn-go.mi-go-round.step-sb   { color: #ffe880; font-size: 27px; background-image: radial-gradient(circle at 50% 35%, #66541a 0%, #4a3e0c 60%, #30280a 100%) !important; }
+.mi-btn-go.mi-go-round.step-warn:hover, .mi-btn-go.mi-go-round.step-sb:hover { filter: brightness(1.15); }
+.mi-btn-go.mi-go-round.flash-step { box-shadow: inset 0 3px 8px rgba(0,0,0,0.35), 0 0 0 2px var(--mi-brass-lo), 0 0 30px 8px rgba(240,200,80,0.55); }
+/* DRIVE could not reach an app: the GO flashes red (drive.js) */
+.mi-btn-go.mi-go-round.drive-fail {
+  color: #ffd8d8; background-image: radial-gradient(circle at 50% 35%, #a03030 0%, #6a1c1c 60%, #4a1010 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.2), 0 0 0 2px #ff7070, 0 0 26px 6px rgba(255,80,80,0.45);
+}
 .sb-step { flex-basis: 100%; display: block; font-family: var(--mi-font-mono); font-size: 14px; font-weight: 400; letter-spacing: 4px; margin-bottom: 2px; }
 .sb-step.warn { color: #e0b050; }
 .sb-step.standby { color: #ffe880; }
@@ -791,15 +797,7 @@ body.show-mode .show-only { display: inline-flex !important; }
 /* ══ Depth (2026-10-30): MiKallbook's own controls. Shared buttons get theirs from mi-theme.css ══
    Left flat on purpose: margin cue tabs/dots on the script page (2D marks, like MiKonsole's MS
    tools), menu rows, list items, borderless ✕ buttons, colour inputs. */
-/* Big calling GO: full-depth edge (2px skirt, 2px sink); step colours unchanged */
-.go-big {
-  --mk-raise:   inset 0 1px 0 rgba(255,255,255,0.26), inset 0 -1px 0 rgba(0,0,0,0.40), 0 2px 0 #0b0b0b, 0 3px 6px rgba(0,0,0,0.55);
-  --mk-raise-h: inset 0 1px 0 rgba(255,255,255,0.34), inset 0 -1px 0 rgba(0,0,0,0.40), 0 2px 0 #0b0b0b, 0 3px 6px rgba(0,0,0,0.55);
-  --mk-lit:     inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(0,0,0,0.40), 0 2px 0 #0b0b0b;
-  --mk-sink:    2px;
-}
-.go-big.flash-step       { box-shadow: var(--mk-lit), 0 0 22px rgba(240,200,80,0.55); }
-.mi-btn-go.drive-fail    { box-shadow: var(--mk-lit), 0 0 14px rgba(255,80,80,0.40); }
+/* Big calling GO: depth now comes from .mi-go-round in mi-theme.css (2026.02) */
 /* Run-order GO buttons, picker departments, live-missing pill: raised */
 .ro-go, .pk-dept, .live-miss {
   background-image: var(--mk-face) !important; box-shadow: var(--mk-raise); text-shadow: 0 -1px 0 rgba(0,0,0,0.45);
@@ -819,4 +817,9 @@ body.show-mode .show-only { display: inline-flex !important; }
 .ro-go:active, .pk-dept:active, .live-miss:active, .dp-btn:active:not(:disabled), .tm-log:active,
 .ro-go.sel, .pk-dept.on {
   background-image: var(--mk-face-in) !important; box-shadow: var(--mk-press); transform: translateY(var(--mk-sink));
+}
+
+/* Scrollers that are not .mi-scroll: same 12px end room as mi-theme.css (2026-11-16) */
+.script-view, .tm-scroll, .pk-list, .lk-clients {
+  padding-bottom: 12px;
 }

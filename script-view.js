@@ -176,7 +176,8 @@ async function pdfSource(bytes) {
 // Drawn in the same black-on-white as a PDF page, so Dark mode and marks
 // work identically. Characters are placed on a fixed 7.2 pt grid; if the
 // installed monospace font is a different width it is squeezed to fit.
-const TEXT_FONT = '"Courier New", Courier, "Liberation Mono", monospace';
+// 2026.02: Courier Prime (embedded in mi-fonts.css) first; same 0.6 em advance as Courier New
+const TEXT_FONT = '"Courier Prime", "Courier New", Courier, "Liberation Mono", monospace';
 let textAdvanceRatio = null;   // measured font width / expected width
 function textSource(text, opts) {
   const T = window.MiTextDoc;
@@ -189,6 +190,10 @@ function textSource(text, opts) {
       const k = scale * dpr;
       canvas.width  = Math.max(1, Math.floor(T.PAGE_W * k));
       canvas.height = Math.max(1, Math.floor(T.PAGE_H * k));
+      // A canvas does not wait for a web font: load Courier Prime before the first page is drawn
+      if (document.fonts && document.fonts.load) {
+        try { await document.fonts.load(`${T.FONT_PT}px "Courier Prime"`); } catch (e) { /* draw with the fallback */ }
+      }
       const ctx = canvas.getContext('2d', { alpha: false });
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);

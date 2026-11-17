@@ -195,22 +195,28 @@
       </div>
       <!-- Calling column: right side, next to the margin tabs -->
       <div id="calling">
-        <div class="standby">
-          <div class="standby-head"><span class="mi-label">Standby</span><span class="sb-clock" id="sbClock"></span></div>
-          <div class="standby-main">
-            <div class="standby-cues" id="standbyCues">-</div>
+        <!-- Standby as a ticket; round brass GO with Back and DRIVE beside it (2026.02 reskin) -->
+        <div class="mi-ticket">
+          <div class="mi-ticket-stub">
+            <div class="mi-ticket-label">Standby</div>
+            <span class="sb-clock" id="sbClock"></span>
           </div>
-          <div class="standby-meta" id="standbyMeta">No GO points yet</div>
-          <div class="standby-notes" id="standbyNotes"></div>
+          <div class="mi-ticket-body">
+            <div class="standby-cues" id="standbyCues">-</div>
+            <div class="standby-meta" id="standbyMeta">No GO points yet</div>
+            <div class="standby-notes" id="standbyNotes"></div>
+          </div>
         </div>
 
-        <button class="mi-btn-go go-big" id="btnGo" disabled>GO</button>
-
-        <div class="transport-row">
-          <button class="mi-btn" id="btnBack" disabled title="Step back to the previous GO point">Back</button>
-          <button class="mi-btn drive-btn" id="btnDrive">DRIVE OFF</button>
+        <div class="mi-go-row">
+          <button class="mi-btn-go mi-go-round" id="btnGo" disabled>GO</button>
+          <div class="mi-go-side">
+            <div class="mi-armed">Armed</div>
+            <button class="mi-btn" id="btnBack" disabled title="Step back to the previous GO point">Back</button>
+            <button class="mi-btn drive-btn" id="btnDrive">DRIVE OFF</button>
+            <div class="hint" id="callHint">SPACE&nbsp;=&nbsp;GO<br>BACKSPACE&nbsp;=&nbsp;BACK</div>
+          </div>
         </div>
-        <div class="hint" id="callHint">SPACE&nbsp;=&nbsp;GO &nbsp;·&nbsp; BACKSPACE&nbsp;=&nbsp;BACK</div>
 
         <!-- Show clock: session, milestones, holds (timing.js; Show mode, not when following the SM) -->
         <div class="timing hidden" id="timing">
