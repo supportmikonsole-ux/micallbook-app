@@ -91,3 +91,10 @@ contextBridge.exposeInMainWorld('micallbook', {
   },
   platform: process.platform
 });
+
+// Menu bar (2026-11-20): the Utilities dropdown copied into the window's menu
+// bar, and a file double-clicked to start the app. See mi-menubar.js.
+contextBridge.exposeInMainWorld('miMenuBar', {
+  setUtil:     (items) => ipcRenderer.send('menubar:util', Array.isArray(items) ? items : []),
+  takePending: ()      => ipcRenderer.invoke('menubar:take-pending')
+});

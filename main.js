@@ -78,10 +78,9 @@ function createMainWindow() {
     ...(fs.existsSync(iconPath) ? { icon: iconPath } : {}),
     show: false,
     opacity: 0,
-    // No title-bar close button, same as MiKonsole and MiKue: EXIT is the
-    // way out. Alt+F4 and taskbar Close still reach the 'close' handler
-    // below, which hands them to the page's Exit dialog.
-    closable: false,
+    // Closable (2026-11-20, as MiKonsole): the title-bar X, Alt+F4 and taskbar
+    // Close all reach the 'close' handler below, which hands them to the page's
+    // Exit (Save changes? / Exit?). File > Exit in the menu bar does the same.
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -200,6 +199,8 @@ function addRecent(p, data) {
     .concat(recentList().filter(x => key(x.path) !== key(p)))
     .slice(0, RECENT_MAX);
   writeSettings(s);
+  try { app.addRecentDocument(s.recents[0].path); } catch (_) {}   // Windows Jump List / Mac Dock menu
+  installAppMenu();                                                // File > Open Recent (2026-11-20)
 }
 // The start screen's list: files that are still there
 ipcMain.handle('show:recents', () => recentList()
@@ -208,7 +209,7 @@ ipcMain.handle('show:recents', () => recentList()
 // Open one of them. Only paths on the recent list, so the page can't ask for any file.
 ipcMain.handle('show:openPath', (_e, p) => {
   p = String(p || '');
-  if (!recentList().some(x => x.path === p)) return { error: 'That file is not on the recent list.' };
+  if (!recentList().some(x => x.path === p) && !launchPaths.has(p)) return { error: 'That file is not on the recent list.' };
   return readShowFile(p);
 });
 
@@ -372,6 +373,9 @@ ipcMain.handle('script:read', async (_e, p) => {
 
 // ── IPC: app ──────────────────────────────────────────────────────────────
 ipcMain.on('app:title', (_e, t) => {
+  if (process.platform === 'darwin' && mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.setDocumentEdited(/\s\*$/.test(String(t || ''))); } catch (_) {}   // 2026-11-20
+  }
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setTitle(t);
 });
 
@@ -662,7 +666,9 @@ const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
+  app.on('second-instance', (_e, argv) => {
+    const fileArg = findFileArg(argv);              // a file double-clicked while running (2026-11-20)
+    if (fileArg) setTimeout(() => queueOpen(fileArg), 0);
     if (mainWindow && !mainWindow.isDestroyed()) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.show();
@@ -671,41 +677,194 @@ if (!gotLock) {
   });
 }
 
-// ── App menu (2026.01, row 12/13) ───────────────────────────────────────
-// Windows / Linux: no menu at all. A hidden menu bar still answered its
-// shortcuts: Ctrl+R reloaded the page without asking about unsaved changes,
-// Ctrl+Shift+I opened Developer Tools (found by Mike in MiKast, 2026-11-14).
-// Copy, paste, cut, select all and undo in text boxes work without a menu.
-// Mac: the menu belongs to the app and Cmd+C / Cmd+V need its Edit menu, so
-// it is Electron's default without View and Help, the same as MiKonsole's.
-function installAppMenu() {
-  if (process.platform !== 'darwin') { Menu.setApplicationMenu(null); return; }
-  Menu.setApplicationMenu(Menu.buildFromTemplate([
-    { role: 'appMenu' },
-    { role: 'fileMenu' },
-    { role: 'editMenu' },
-    { label: 'Window', role: 'window', submenu: [
-      { role: 'minimize' },
-      { role: 'zoom' },
-      { type: 'separator' },
-      { role: 'togglefullscreen' },
-      { type: 'separator' },
-      { role: 'front' }
-    ] }
-  ]));
+// ── Menu bar: File / Utilities (2026-11-20, the same as MiKonsole) ──────────
+// Replaces the header's New / Open / Save / Save As buttons, its Utilities
+// dropdown and its Exit button (mi-menubar.js in the page hides them). Every
+// item runs what the header button did: runPageCmd() asks the page, which
+// clicks that same button, so nothing about saving or opening changed.
+//
+// Windows: the menu is set on the main window only (setMenu); the application
+// menu stays null, so the manual and every other window still have no menu
+// bar. Only our own items: no Reload (Ctrl+R) or Developer Tools
+// (Ctrl+Shift+I) as in Electron's default menu (2026.01, row 12/13). The page
+// keeps its own Ctrl+N/O/S/Shift+S keys (registerAccelerator:false: the menu
+// only shows them).
+// Mac: the menu belongs to the app. App menu (About, Hide, Quit), File, Edit
+// (Electron's role: copy / paste / undo in text boxes), Utilities, Window.
+// Cmd+Q goes through before-quit, which asks the page first.
+let utilMenuItems = [];          // the page's Utilities dropdown ('menubar:util')
+let pendingOpen   = null;        // a file double-clicked before the page was ready
+let openReady     = false;
+const launchPaths = new Set();   // double-clicked files: openPath accepts them too
+
+// Run a command in the page. userGesture=true, as a click would be (some
+// Utilities items open file pickers or print).
+function runPageCmd(cmd, arg) {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.focus();
+  const code = 'window.__mkMenuCmd && window.__mkMenuCmd(' + JSON.stringify(String(cmd)) + ',' +
+               JSON.stringify(arg == null ? null : String(arg)) + '); void 0;';
+  mainWindow.webContents.executeJavaScript(code, true)
+    .catch(err => console.error('[main] menu command failed:', cmd, err && err.message));
 }
+
+const menuEsc = t => process.platform === 'win32' ? String(t).replace(/&/g, '&&') : String(t);   // & is a Windows mnemonic
+
+function recentMenuItems() {
+  const list = recentList().filter(x => { try { return fs.statSync(x.path).isFile(); } catch (_) { return false; } });
+  if (!list.length) return [{ label: 'No recent files', enabled: false }];
+  const nameOf = x => String(x.name || path.basename(x.path, path.extname(x.path)));
+  const items = list.map((x, i) => {
+    const n = nameOf(x);
+    // Two files with the same name: add the folder each is in
+    const dup = list.some((y, j) => j !== i && nameOf(y).toLowerCase() === n.toLowerCase());
+    const label = dup ? `${n}  —  ${path.basename(path.dirname(x.path))}` : n;
+    return { label: menuEsc(label), click: () => runPageCmd('open-path', x.path) };
+  });
+  return [...items, { type: 'separator' }, { label: 'Clear Recent', click: clearRecents }];
+}
+function clearRecents() {
+  const s = readSettings();
+  s.recents = [];
+  writeSettings(s);
+  try { app.clearRecentDocuments(); } catch (_) {}
+  installAppMenu();
+}
+
+// The page's Utilities dropdown as menu items: hidden items left out,
+// separators tidied, a key shown in a hint (F1, Ctrl+P) shown beside the item.
+function utilityMenuItems(isMac) {
+  const out = [];
+  for (const it of utilMenuItems) {
+    if (it.hidden) continue;
+    if (it.sep) { if (out.length && out[out.length - 1].type !== 'separator') out.push({ type: 'separator' }); continue; }
+    if (it.note) { out.push({ label: menuEsc(it.label), enabled: false }); continue; }
+    if (isMac && it.id === 'miAbout') continue;                  // Mac: About is in the app menu
+    const item = { label: menuEsc(it.label), enabled: !it.disabled, click: () => runPageCmd('util', it.id) };
+    const key = /^(F\d{1,2}|Ctrl\+[A-Z0-9])$/i.test(it.key || '') ? it.key.replace(/^Ctrl\+/i, 'CmdOrCtrl+') : '';
+    if (key && !isMac) { item.accelerator = key; item.registerAccelerator = false; }
+    out.push(item);
+  }
+  while (out.length && out[out.length - 1].type === 'separator') out.pop();
+  return out.length ? out : [{ label: 'Nothing here yet', enabled: false }];
+}
+
+function installAppMenu() {
+  const isMac = process.platform === 'darwin';
+  const acc = a => isMac ? { accelerator: a } : { accelerator: a, registerAccelerator: false };
+  const sep = { type: 'separator' };
+  const fileMenu = { label: isMac ? 'File' : '&File', submenu: [
+    { label: 'New',           ...acc('CmdOrCtrl+N'),       click: () => runPageCmd('new') },
+    { label: 'Open…',    ...acc('CmdOrCtrl+O'),       click: () => runPageCmd('open') },
+    { label: 'Open Recent', submenu: recentMenuItems() },
+    sep,
+    { label: 'Save',          ...acc('CmdOrCtrl+S'),       click: () => runPageCmd('save') },
+    { label: 'Save As…', ...acc('CmdOrCtrl+Shift+S'), click: () => runPageCmd('saveas') },
+    sep,
+    isMac
+      ? { role: 'close' }    // Cmd+W: the window's close, which asks
+      : { label: 'E&xit', accelerator: 'Alt+F4', registerAccelerator: false,
+          click: () => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close(); } }
+  ] };
+  const utilMenu = { label: isMac ? 'Utilities' : '&Utilities', submenu: utilityMenuItems(isMac) };
+
+  if (isMac) {
+    Menu.setApplicationMenu(Menu.buildFromTemplate([
+      { label: app.name, submenu: [
+        { label: 'About ' + app.name, click: () => runPageCmd('about') },
+        sep, { role: 'services' },
+        sep, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' },
+        sep, { role: 'quit' }   // -> before-quit, which asks the page
+      ] },
+      fileMenu,
+      { role: 'editMenu' },
+      utilMenu,
+      { label: 'Window', role: 'window', submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        sep,
+        { role: 'togglefullscreen' },
+        sep,
+        { role: 'front' }
+      ] }
+    ]));
+    return;
+  }
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.setMenu(Menu.buildFromTemplate([fileMenu, utilMenu]));
+  mainWindow.setMenuBarVisibility(true);
+}
+
+// Page -> main: the Utilities dropdown, whenever it changes
+ipcMain.on('menubar:util', (event, items) => {
+  if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents || !Array.isArray(items)) return;
+  const str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+  utilMenuItems = items.slice(0, 60).map(it => ({
+    id: str(it && it.id, 80), label: str(it && it.label, 100), key: str(it && it.key, 20),
+    sep: !!(it && it.sep), note: !!(it && it.note), hidden: !!(it && it.hidden), disabled: !!(it && it.disabled)
+  }));
+  installAppMenu();
+});
+
+const OPEN_EXTS = ["mikallbook", "micallbook"];   // files this app opens
+
+// ── Double-clicked files (file association in package.json) ──────────────
+// Windows passes the file on the command line, to a first launch
+// (process.argv) or to the running app (second-instance). The Mac uses
+// 'open-file'. The page asks for a waiting file once it has started.
+function findFileArg(argv) {
+  if (!Array.isArray(argv)) return null;
+  for (const a of argv.slice(1)) {
+    if (typeof a !== 'string' || a.startsWith('-')) continue;
+    const ext = path.extname(a).toLowerCase().replace(/^\./, '');
+    if (!OPEN_EXTS.includes(ext)) continue;
+    try { if (fs.statSync(a).isFile()) return path.resolve(a); } catch (_) {}
+  }
+  return null;
+}
+function queueOpen(p) {
+  if (!p) return;
+  launchPaths.add(p);
+  if (openReady && mainWindow && !mainWindow.isDestroyed()) runPageCmd('open-path', p);
+  else pendingOpen = p;
+}
+pendingOpen = findFileArg(process.argv);
+if (pendingOpen) launchPaths.add(pendingOpen);
+app.on('open-file', (e, p) => { e.preventDefault(); queueOpen(p); });
+
+// The page has started: from now on files open straight away. Returns the
+// file double-clicked to start the app, if any (once).
+ipcMain.handle('menubar:take-pending', (event) => {
+  if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents) return null;
+  openReady = true;
+  const p = pendingOpen;
+  pendingOpen = null;
+  return p;
+});
 
 app.whenReady().then(() => {
   if (!gotLock) return;
-  installAppMenu();
+  // Windows: no application menu (every window would get it); the main
+  // window's own menu bar is set by installAppMenu() once it exists. Mac: the app menu.
+  if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
   mainWindow = createMainWindow();
+  installAppMenu();                                   // menu bar (2026-11-20)
+  mainWindow.webContents.on('did-start-loading', () => { openReady = false; });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) mainWindow = createMainWindow();
   });
 });
 
-app.on('before-quit', () => {
+app.on('before-quit', (e) => {
+  // Mac Cmd+Q / Dock > Quit (2026-11-20): ask the page first, as the X does.
+  // Its Exit sends 'app:quit', which sets allowClose and quits.
+  if (!allowClose && mainWindow && !mainWindow.isDestroyed()) {
+    const wc = mainWindow.webContents;
+    const dead = (typeof wc.isCrashed === 'function' && wc.isCrashed()) || wc.isLoading();
+    if (!dead) { e.preventDefault(); wc.send('app:close-request'); return; }
+  }
   try { mikastLink.shutdown(); } catch (_) {}
   allowClose = true;
   link.shutdown();

@@ -27,6 +27,7 @@
       "preload.js",
       "index.html",
       "app.js",
+      "mi-menubar.js",
       "script-view.js",
       "text-doc.js",
       "marks.js",
@@ -56,6 +57,14 @@
       "mikallbook.css"
     ],
 
+    "fileAssociations": [
+      {
+        "ext":         "mikallbook",
+        "name":        "MiKallbook Show",
+        "description": "MiKallbook Show",
+        "role":        "Editor"
+      }
+    ],
     "win": {
       "target": [
         { "target": "nsis", "arch": ["x64"] }

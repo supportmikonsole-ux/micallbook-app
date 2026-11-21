@@ -305,6 +305,24 @@ input, textarea, select, [contenteditable] { user-select: text; }
   .mi-file-btn { padding: 6px 6px; }
 }
 
+/* ── Menu bar (2026-11-20, the same as MiKonsole) ────────────────────────────
+   As the app, File and Utilities are in the window's menu bar (mi-menubar.js
+   sets html.mk-app), so the header's file buttons, status, Utilities dropdown
+   and Exit hide, and the file's name is plain gold text, not an input-like box.
+   The amber dot after the name = unsaved changes (it was on the Exit button).
+   In a plain browser the header looks as it did. */
+html.mk-app .mi-file-btn, html.mk-app .mi-file-status, html.mk-app #utilWrap, html.mk-app #btnExit,
+html.mk-app .hdr-sep:has(+ #utilWrap), html.mk-app #utilWrap + .hdr-sep { display: none !important; }
+html.mk-app .mi-file-name {
+  font-family: var(--mi-font-i); font-size: 26px; font-weight: 600; letter-spacing: 1px; line-height: 30px;
+  color: var(--mi-file-name-color, var(--mi-gold)); background: none; border: none; padding: 0 2px;
+  width: auto; max-width: 460px; user-select: none;
+}
+html.mk-app body:has(#btnExit.dirty) .mi-file-name::after {
+  content: ''; display: inline-block; width: 8px; height: 8px; margin-left: 10px; vertical-align: middle;
+  border-radius: 50%; background: #e8c050; box-shadow: 0 0 4px #e8c050;
+}
+
 /* ══ DEPTH LAYER — "Pronounced" raised controls (2026-10-30, ported from MiKonsole) ══════
    Shared by every Mi app that loads this theme; keep it at the END of this file.
    Suite buttons sit on lighter panels, so the default is the softer set used on
